@@ -1,0 +1,82 @@
+[
+  {
+    "commodity_id": "DC001",
+    "name": "Artisanal Paneer",
+    "phase_state": "solid",
+    "fat_content_level": "high",
+    "max_allowable_otr": 50.0,
+    "max_allowable_wvtr": 10.0
+  },
+  {
+    "commodity_id": "DC002",
+    "name": "Pasteurized Liquid Milk",
+    "phase_state": "liquid",
+    "fat_content_level": "medium",
+    "max_allowable_otr": 20.0,
+    "max_allowable_wvtr": 5.0
+  },
+  {
+    "commodity_id": "DC003",
+    "name": "Ghee",
+    "phase_state": "liquid",
+    "fat_content_level": "high",
+    "max_allowable_otr": 80.0,
+    "max_allowable_wvtr": 2.0
+  },
+  {
+    "commodity_id": "DC004",
+    "name": "Cheddar Cheese",
+    "phase_state": "solid",
+    "fat_content_level": "high",
+    "max_allowable_otr": 15.0,
+    "max_allowable_wvtr": 8.0
+  },
+  {
+    "commodity_id": "DC005",
+    "name": "Greek Yogurt",
+    "phase_state": "paste",
+    "fat_content_level": "medium",
+    "max_allowable_otr": 30.0,
+    "max_allowable_wvtr": 6.0
+  },
+  {
+    "commodity_id": "DC006",
+    "name": "Flavored Lassi",
+    "phase_state": "liquid",
+    "fat_content_level": "low",
+    "max_allowable_otr": 40.0,
+    "max_allowable_wvtr": 8.0
+  },
+  {
+    "commodity_id": "DC007",
+    "name": "Mozzarella Cheese",
+    "phase_state": "solid",
+    "fat_content_level": "high",
+    "max_allowable_otr": 10.0,
+    "max_allowable_wvtr": 5.0
+  },
+  {
+    "commodity_id": "DC008",
+    "name": "Butter",
+    "phase_state": "solid",
+    "fat_content_level": "high",
+    "max_allowable_otr": 60.0,
+    "max_allowable_wvtr": 1.5
+  },
+  {
+    "commodity_id": "DC009",
+    "name": "Probiotic Buttermilk",
+    "phase_state": "liquid",
+    "fat_content_level": "low",
+    "max_allowable_otr": 25.0,
+    "max_allowable_wvtr": 7.0
+  },
+  {
+    "commodity_id": "DC010",
+    "name": "Cream Cheese Spread",
+    "phase_state": "paste",
+    "fat_content_level": "high",
+    "max_allowable_otr": 20.0,
+    "max_allowable_wvtr": 4.0
+  }
+]

@@ -1,0 +1,282 @@
+[
+  {
+    "material_id": "MAT001",
+    "name": "LDPE Mono-Layer Film",
+    "category": "basic_plastic",
+    "otr_value": 300.0,
+    "wvtr_value": 15.0,
+    "cost_index_per_kg": 1,
+    "epr_compliant": false,
+    "compatible_phase_states": ["solid"],
+    "failure_modes": {
+      "temperature_abuse": "Softening and seal failure above 80°C; significant shrinkage at 100°C",
+      "physical_stress": "Puncture-prone under sharp-edged contents; poor tear resistance along machine direction"
+    }
+  },
+  {
+    "material_id": "MAT002",
+    "name": "HDPE Blow-Molded Bottle",
+    "category": "basic_plastic",
+    "otr_value": 185.0,
+    "wvtr_value": 4.0,
+    "cost_index_per_kg": 2,
+    "epr_compliant": true,
+    "compatible_phase_states": ["liquid"],
+    "failure_modes": {
+      "temperature_abuse": "Environmental stress cracking when exposed to fats above 60°C",
+      "physical_stress": "Drop impact failure at base weld seam; hoop stress cracking under internal pressure"
+    }
+  },
+  {
+    "material_id": "MAT003",
+    "name": "PP Thermoformed Tub",
+    "category": "rigid_plastic",
+    "otr_value": 150.0,
+    "wvtr_value": 5.0,
+    "cost_index_per_kg": 2,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "Brittleness below 0°C; warping above 120°C if not nucleated grade",
+      "physical_stress": "Corner cracking in thermoformed geometry under stacking compression"
+    }
+  },
+  {
+    "material_id": "MAT004",
+    "name": "PET/PE Laminate Pouch",
+    "category": "laminate",
+    "otr_value": 25.0,
+    "wvtr_value": 3.5,
+    "cost_index_per_kg": 3,
+    "epr_compliant": false,
+    "compatible_phase_states": ["solid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "Delamination at PET/PE interface above 90°C due to differential thermal expansion",
+      "physical_stress": "Flex-crack propagation at fold lines during transit vibration"
+    }
+  },
+  {
+    "material_id": "MAT005",
+    "name": "EVOH/PE Co-Extruded Film",
+    "category": "high_barrier",
+    "otr_value": 0.4,
+    "wvtr_value": 4.0,
+    "cost_index_per_kg": 6,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "EVOH barrier degradation above 85% RH or retort conditions; OTR increases 10x when wet",
+      "physical_stress": "EVOH core layer crack under severe flexing; lamination integrity loss at perforation lines"
+    }
+  },
+  {
+    "material_id": "MAT006",
+    "name": "Metallized PET/LDPE Laminate",
+    "category": "high_barrier",
+    "otr_value": 0.8,
+    "wvtr_value": 0.5,
+    "cost_index_per_kg": 5,
+    "epr_compliant": false,
+    "compatible_phase_states": ["solid", "paste", "liquid"],
+    "failure_modes": {
+      "temperature_abuse": "Metal layer oxidation at seam edges during thermal cycling; barrier loss at crease points",
+      "physical_stress": "Metallization scratch-through under abrasive content contact; pinhole formation at fold creases"
+    }
+  },
+  {
+    "material_id": "MAT007",
+    "name": "Aluminium Foil / PE Laminate",
+    "category": "high_barrier",
+    "otr_value": 0.1,
+    "wvtr_value": 0.1,
+    "cost_index_per_kg": 7,
+    "epr_compliant": false,
+    "compatible_phase_states": ["solid", "paste", "liquid"],
+    "failure_modes": {
+      "temperature_abuse": "PE sealant layer degradation above 121°C in retort; foil embrittlement under thermal shock",
+      "physical_stress": "Foil flex-cracking in pillow pouch formats; dead-fold fatigue failure in stand-up pouch gussets"
+    }
+  },
+  {
+    "material_id": "MAT008",
+    "name": "Glass Bottle (Type III Soda-Lime)",
+    "category": "glass",
+    "otr_value": 0.0,
+    "wvtr_value": 0.0,
+    "cost_index_per_kg": 4,
+    "epr_compliant": true,
+    "compatible_phase_states": ["liquid"],
+    "failure_modes": {
+      "temperature_abuse": "Thermal shock fracture with >42°C differential; crown seal failure under pasteurization pressure",
+      "physical_stress": "Catastrophic brittle fracture on impact; surface abrasion scuffing reduces burst pressure"
+    }
+  },
+  {
+    "material_id": "MAT009",
+    "name": "Tetra Pak Aseptic (Paperboard/PE/Al/PE)",
+    "category": "composite_carton",
+    "otr_value": 0.3,
+    "wvtr_value": 0.2,
+    "cost_index_per_kg": 5,
+    "epr_compliant": true,
+    "compatible_phase_states": ["liquid"],
+    "failure_modes": {
+      "temperature_abuse": "Paperboard delamination in high-humidity cold chain abuse; PE layer softening above 70°C",
+      "physical_stress": "Edge crush failure under excessive stacking; score-line tearing during automated filling"
+    }
+  },
+  {
+    "material_id": "MAT010",
+    "name": "Tinplate Steel Can",
+    "category": "metal",
+    "otr_value": 0.0,
+    "wvtr_value": 0.0,
+    "cost_index_per_kg": 6,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid", "paste", "liquid"],
+    "failure_modes": {
+      "temperature_abuse": "Internal lacquer blistering during retort overprocessing; double-seam distortion above 130°C",
+      "physical_stress": "Denting causing seam microleaks; rim damage preventing hermetic seal closure"
+    }
+  },
+  {
+    "material_id": "MAT011",
+    "name": "BOPP/CPP Laminate",
+    "category": "laminate",
+    "otr_value": 120.0,
+    "wvtr_value": 2.5,
+    "cost_index_per_kg": 2,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid"],
+    "failure_modes": {
+      "temperature_abuse": "CPP seal layer softens above 130°C; BOPP shrinkage causes curl and delamination",
+      "physical_stress": "Poor puncture resistance for angular product geometries; side-seal peel failure under drop impact"
+    }
+  },
+  {
+    "material_id": "MAT012",
+    "name": "Nylon/PE (PA/PE) Vacuum Pouch",
+    "category": "laminate",
+    "otr_value": 12.0,
+    "wvtr_value": 3.0,
+    "cost_index_per_kg": 4,
+    "epr_compliant": false,
+    "compatible_phase_states": ["solid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "Nylon moisture absorption increases OTR by 3x; cook-in applications require special PA6/66 grade",
+      "physical_stress": "Bone-puncture failure in meat packaging applications; vacuum channel blockage with paste contents"
+    }
+  },
+  {
+    "material_id": "MAT013",
+    "name": "EVOH/PP Thermoformed Tray",
+    "category": "high_barrier",
+    "otr_value": 0.5,
+    "wvtr_value": 3.0,
+    "cost_index_per_kg": 7,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "EVOH moisture sensitivity in chilled display; PP base warps above 110°C without annealing",
+      "physical_stress": "Lid peel-force inconsistency under temperature variation; tray flange distortion in MAP sealing"
+    }
+  },
+  {
+    "material_id": "MAT014",
+    "name": "SiOx-Coated PET Film",
+    "category": "high_barrier",
+    "otr_value": 1.0,
+    "wvtr_value": 1.0,
+    "cost_index_per_kg": 8,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid", "paste", "liquid"],
+    "failure_modes": {
+      "temperature_abuse": "SiOx coating micro-crack formation during retort thermal cycling; barrier loss after 3+ cycles",
+      "physical_stress": "Coating fracture under >3% elongation strain; abrasion-induced barrier degradation in transport"
+    }
+  },
+  {
+    "material_id": "MAT015",
+    "name": "PLA Bio-Plastic Cup",
+    "category": "bioplastic",
+    "otr_value": 38.0,
+    "wvtr_value": 18.0,
+    "cost_index_per_kg": 5,
+    "epr_compliant": true,
+    "compatible_phase_states": ["liquid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "Glass transition at 55°C causes structural collapse; not suitable for hot-fill applications",
+      "physical_stress": "Brittle fracture under impact at refrigeration temperatures; rim chip-off during lidding"
+    }
+  },
+  {
+    "material_id": "MAT016",
+    "name": "Wax-Coated Paperboard Carton",
+    "category": "paper_based",
+    "otr_value": 200.0,
+    "wvtr_value": 12.0,
+    "cost_index_per_kg": 2,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid"],
+    "failure_modes": {
+      "temperature_abuse": "Wax melting above 60°C causes surface migration and grease spotting; loss of moisture barrier",
+      "physical_stress": "Wet strength collapse under condensation; carton bulge and burst under stacking load with moisture ingress"
+    }
+  },
+  {
+    "material_id": "MAT017",
+    "name": "Metallized BOPP/PE Pouch",
+    "category": "laminate",
+    "otr_value": 15.0,
+    "wvtr_value": 1.5,
+    "cost_index_per_kg": 3,
+    "epr_compliant": false,
+    "compatible_phase_states": ["solid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "Metallization delamination at PE interface during heat sealing above 160°C",
+      "physical_stress": "Metal layer disruption at fold creases; loss of barrier at gusset stress points"
+    }
+  },
+  {
+    "material_id": "MAT018",
+    "name": "Gable-Top PE-Coated Paperboard",
+    "category": "composite_carton",
+    "otr_value": 85.0,
+    "wvtr_value": 3.0,
+    "cost_index_per_kg": 3,
+    "epr_compliant": true,
+    "compatible_phase_states": ["liquid"],
+    "failure_modes": {
+      "temperature_abuse": "PE coating softens above 75°C allowing moisture wicking into paperboard core",
+      "physical_stress": "Gable-top seal failure under pressure during transport; bottom seam leakage on drop impact"
+    }
+  },
+  {
+    "material_id": "MAT019",
+    "name": "PVDC-Coated Nylon/PE Shrink Bag",
+    "category": "high_barrier",
+    "otr_value": 3.0,
+    "wvtr_value": 1.5,
+    "cost_index_per_kg": 5,
+    "epr_compliant": false,
+    "compatible_phase_states": ["solid", "paste"],
+    "failure_modes": {
+      "temperature_abuse": "PVDC decomposition above 140°C releasing HCl; shrink tunnel temperature must be tightly controlled",
+      "physical_stress": "Bone-guard patch failure with sharp-edged contents; clip-seal leakage under vacuum loss"
+    }
+  },
+  {
+    "material_id": "MAT020",
+    "name": "Recycled PET (rPET) Thermoform",
+    "category": "rigid_plastic",
+    "otr_value": 35.0,
+    "wvtr_value": 6.0,
+    "cost_index_per_kg": 3,
+    "epr_compliant": true,
+    "compatible_phase_states": ["solid", "paste", "liquid"],
+    "failure_modes": {
+      "temperature_abuse": "Crystallization haze above 70°C reduces optical clarity; IV drop limits hot-fill use",
+      "physical_stress": "Wall thinning at thermoform corners reduces crush resistance; lid snap-fit fatigue after 5+ open-close cycles"
+    }
+  }
+]
