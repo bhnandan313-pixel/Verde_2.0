@@ -1,0 +1,72 @@
+[
+  {
+    "id": "hdpe_bottle",
+    "name": "HDPE Bottle",
+    "material_type": "rigid_plastic",
+    "OTR_limit": 60,
+    "WVTR_limit": 15,
+    "cost_per_unit": 0.45,
+    "MOQ": 5000,
+    "compatible_phase_states": ["liquid", "semi-solid"],
+    "max_moisture_exposure": 90,
+    "pH_range": [3.0, 9.0],
+    "recyclable": true,
+    "description": "High-density polyethylene bottle, suitable for liquid dairy."
+  },
+  {
+    "id": "multilayer_pouch",
+    "name": "Multilayer Barrier Pouch",
+    "material_type": "flexible_film",
+    "OTR_limit": 3,
+    "WVTR_limit": 1,
+    "cost_per_unit": 0.12,
+    "MOQ": 20000,
+    "compatible_phase_states": ["solid", "semi-solid"],
+    "max_moisture_exposure": 50,
+    "pH_range": [3.5, 8.0],
+    "recyclable": false,
+    "description": "High barrier multilayer film for extended shelf-life products."
+  },
+  {
+    "id": "glass_jar",
+    "name": "Glass Jar",
+    "material_type": "glass",
+    "OTR_limit": 0,
+    "WVTR_limit": 0,
+    "cost_per_unit": 0.95,
+    "MOQ": 1000,
+    "compatible_phase_states": ["liquid", "semi-solid", "solid"],
+    "max_moisture_exposure": 100,
+    "pH_range": [1.0, 14.0],
+    "recyclable": true,
+    "description": "Inert glass jar with hermetic seal, zero permeability."
+  },
+  {
+    "id": "pp_tub",
+    "name": "Polypropylene Tub",
+    "material_type": "rigid_plastic",
+    "OTR_limit": 35,
+    "WVTR_limit": 8,
+    "cost_per_unit": 0.28,
+    "MOQ": 10000,
+    "compatible_phase_states": ["semi-solid"],
+    "max_moisture_exposure": 85,
+    "pH_range": [3.5, 8.5],
+    "recyclable": true,
+    "description": "Polypropylene tub, ideal for yogurt and cream cheese."
+  },
+  {
+    "id": "waxed_carton",
+    "name": "Waxed Paperboard Carton",
+    "material_type": "paperboard",
+    "OTR_limit": 55,
+    "WVTR_limit": 12,
+    "cost_per_unit": 0.22,
+    "MOQ": 8000,
+    "compatible_phase_states": ["liquid"],
+    "max_moisture_exposure": 88,
+    "pH_range": [4.0, 9.0],
+    "recyclable": false,
+    "description": "Wax-coated paperboard carton for fluid dairy products."
+  }
+]
