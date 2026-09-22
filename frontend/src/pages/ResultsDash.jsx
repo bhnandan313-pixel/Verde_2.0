@@ -1,13 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import useEngineStore from '../store/useEngineStore';
 import { Button } from '../components/ui/Button';
-
-/**
- * ResultsDash — Route: /results
- * Page 2: Shows three packaging recommendations (Best, Budget, Premium)
- * with colour-coded badges, material images, specs, score bars, and an animated gradient border.
- */
 
 // ── Badge colour config ──────────────────────────────────────────────────────
 const BADGE_CONFIG = {
@@ -53,32 +48,28 @@ const BADGE_CONFIG = {
 function getMaterialImage(category) {
   const cat = (category || '').toLowerCase();
   if (cat.includes('edible') || cat.includes('coating')) {
-    // Organic/Eco texture
-    return 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=600&auto=format&fit=crop';
+    return 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=800&auto=format&fit=crop';
   }
   if (cat.includes('mono') || cat.includes('pe') || cat.includes('recyclable')) {
-    // Clean, clear plastic film roll
-    return 'https://images.unsplash.com/photo-1605600659873-d808a13e4d2a?q=80&w=600&auto=format&fit=crop';
+    return 'https://images.unsplash.com/photo-1605600659873-d808a13e4d2a?q=80&w=800&auto=format&fit=crop';
   }
   if (cat.includes('conventional') || cat.includes('pet')) {
-    // Standard plastic/bubble texture
-    return 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=600&auto=format&fit=crop';
+    return 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop';
   }
-  // Generic high-tech film/foil fallback
-  return 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?q=80&w=600&auto=format&fit=crop';
+  return 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?q=80&w=800&auto=format&fit=crop';
 }
 
 function ScoreBar({ score, barClass }) {
   const pct = Math.round((score ?? 0) * 100);
   return (
-    <div className="mt-3">
-      <div className="flex justify-between text-xs text-gray-500 mb-1">
-        <span>Match score</span>
-        <span className="font-mono text-gray-300">{pct}%</span>
+    <div className="mt-3 bg-gray-950/40 p-4 rounded-2xl border border-gray-800">
+      <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+        <span>AI Match Score</span>
+        <span className="font-mono text-white">{pct}%</span>
       </div>
-      <div className="h-1.5 w-full rounded-full bg-gray-800 overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-gray-800 overflow-hidden">
         <div
-          className={`h-full rounded-full transition-all duration-700 ${barClass}`}
+          className={`h-full rounded-full transition-all duration-1000 ${barClass}`}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -88,108 +79,216 @@ function ScoreBar({ score, barClass }) {
 
 function SpecRow({ label, value, unit, highlight }) {
   return (
-    <li className="flex justify-between items-baseline border-b border-gray-800/70 pb-2 last:border-0">
-      <span className="text-gray-500 text-xs">{label}</span>
-      <span className={`font-mono text-sm ${highlight ?? 'text-gray-200'}`}>
+    <li className="flex justify-between items-baseline border-b border-gray-800/70 pb-3 last:border-0 last:pb-0">
+      <span className="text-gray-400 font-medium text-sm">{label}</span>
+      <span className={`font-mono text-sm font-semibold ${highlight ?? 'text-gray-200'}`}>
         {value}
-        {unit && <span className="text-xs text-gray-600 ml-1">{unit}</span>}
+        {unit && <span className="text-xs text-gray-500 ml-1.5">{unit}</span>}
       </span>
     </li>
   );
 }
 
-function RecommendationCard({ mat, isMain }) {
-  const cfg = BADGE_CONFIG[mat.badge] ?? BADGE_CONFIG['Best Pick'];
-  const matImage = mat.image_url || getMaterialImage(mat.category);
+// ── Aceternity Focus Card Component ──────────────────────────────────────────
+const FocusCard = React.memo(({ card, index, hovered, setHovered, onClick }) => {
+  const isHovered = hovered === index;
+  const isOtherHovered = hovered !== null && hovered !== index;
+  
+  const cfg = BADGE_CONFIG[card.badge] ?? BADGE_CONFIG['Best Pick'];
+  const matImage = card.image_url || getMaterialImage(card.category);
 
   return (
     <div
-      className={`
-        group relative overflow-hidden rounded-[16px] p-[1px]
-        transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl
-        ${isMain ? 'lg:col-span-1' : 'lg:col-span-1'}
-      `}
+      onMouseEnter={() => setHovered(index)}
+      onMouseLeave={() => setHovered(null)}
+      onClick={() => onClick(card)}
+      className={`relative bg-gray-900 overflow-hidden rounded-[32px] h-[380px] md:h-[460px] w-full transition-all duration-500 ease-out cursor-pointer shadow-xl border border-white/5 ${
+        isOtherHovered ? "blur-[6px] scale-[0.96] opacity-50" : "scale-100 opacity-100 hover:shadow-2xl hover:border-emerald-500/30"
+      }`}
     >
-      {/* Animated Gradient Background Border Layer */}
-      <div className={`absolute inset-[-100%] animate-[spin_3s_linear_infinite] ${cfg.gradient} opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
+      {/* Background Image */}
+      <img
+        src={matImage}
+        alt={card.name}
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out ${
+          isHovered ? "scale-110" : "scale-100"
+        }`}
+      />
       
-      {/* Inner Card Content */}
-      <div className={`relative flex flex-col h-full bg-gray-900 rounded-[15px] p-5 z-10 ${cfg.glow}`}>
-        
-        {/* Top Image Banner (~1/4 of card height) */}
-        <div className="relative w-full h-36 md:h-40 shrink-0 mb-5 rounded-xl overflow-hidden bg-gray-950 border border-gray-800/50">
-          <img 
-            src={matImage} 
-            alt={mat.name} 
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out opacity-80 group-hover:opacity-100" 
-          />
-          
-          {/* Floating Badges */}
-          <div className="absolute top-2 left-2 z-20">
-            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider backdrop-blur-md shadow-lg ${cfg.pill}`}>
-              <span>{cfg.icon}</span> {mat.badge}
-            </span>
-          </div>
-          
-          {mat.is_recyclable && (
-            <div className="absolute top-2 right-2 z-20">
-              <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/40 shadow-lg px-2 py-0.5 rounded-full uppercase tracking-widest">
-                ♻ Eco
-              </span>
-            </div>
-          )}
+      {/* Dark Gradient Overlay */}
+      <div 
+        className={`absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/60 to-transparent transition-opacity duration-500 ${
+          isHovered ? "opacity-90" : "opacity-60"
+        }`} 
+      />
 
-          {/* Bottom Fade Overlay for readable text beneath */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none" />
-        </div>
-
-        {/* Name & sub-label */}
-        <h2 className={`text-xl font-extrabold text-white leading-tight line-clamp-2`}>{mat.name}</h2>
-        <p className={`text-xs mt-1 mb-2 font-medium ${cfg.label}`}>{cfg.sub}</p>
-        <p className="text-xs text-gray-400 leading-relaxed mb-4 line-clamp-2">
-          {mat.description}
-        </p>
-
-        {/* Score bar */}
-        {mat.score != null && <ScoreBar score={mat.score} barClass={cfg.bar} />}
-
-        <hr className="border-gray-800 my-4" />
-
-        {/* Specs */}
-        <ul className="space-y-2 text-sm flex-1">
-          <SpecRow label="Cost / unit" value={`$${mat.cost_per_kg?.toFixed(2) ?? '—'}`} />
-          <SpecRow label="OTR limit" value={mat.otr ?? '—'} unit="cc/m²/day" />
-          <SpecRow label="WVTR limit" value={mat.wvtr ?? '—'} unit="g/m²/day" />
-          <SpecRow
-            label="Recyclable"
-            value={mat.is_recyclable ? 'Yes' : 'No'}
-            highlight={mat.is_recyclable ? 'text-emerald-400' : 'text-amber-400'}
-          />
-          <SpecRow label="Material type" value={mat.material_type?.replace('_', ' ') ?? '—'} />
-          {mat.supported_temperature_conditions?.length > 0 && (
-            <SpecRow
-              label="Temperature"
-              value={mat.supported_temperature_conditions.join(', ')}
-              highlight="text-sky-300 text-xs truncate max-w-[150px] inline-block text-right"
-            />
-          )}
-          {mat.supported_storage_types?.length > 0 && (
-            <SpecRow
-              label="Rated storage"
-              value={mat.supported_storage_types.slice(0, 2).join(', ')}
-              highlight="text-emerald-300 text-xs truncate max-w-[150px] inline-block text-right"
-            />
-          )}
-        </ul>
+      {/* Floating Badge */}
+      <div className="absolute top-5 left-5 z-10 flex gap-2">
+        <span className={`inline-flex items-center gap-1.5 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider backdrop-blur-md shadow-lg ${cfg.pill}`}>
+          <span>{cfg.icon}</span> {card.badge}
+        </span>
+        {card.is_recyclable && (
+          <span className="inline-flex items-center gap-1 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 backdrop-blur-md shadow-lg">
+            ♻ Eco
+          </span>
+        )}
       </div>
+
+      {/* Title & Action appearing at the bottom */}
+      <div
+        className={`absolute bottom-0 inset-x-0 px-6 py-8 flex flex-col justify-end transition-all duration-500 ease-out ${
+          isHovered ? "translate-y-0 opacity-100" : "translate-y-3 opacity-90"
+        }`}
+      >
+        <h3 className="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-lg mb-2">
+          {card.name}
+        </h3>
+        <p className={`font-bold text-xs md:text-sm uppercase tracking-wider flex items-center gap-2 transition-all duration-300 ${isHovered ? cfg.accent : 'text-gray-300'}`}>
+          View Full Specs
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-300 ${isHovered ? 'translate-x-2' : ''}`}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </p>
+      </div>
+    </div>
+  );
+});
+
+// Container for the Focus Cards Grid
+function FocusCards({ items, onCardClick }) {
+  const [hovered, setHovered] = useState(null);
+
+  return (
+    <div className={`grid gap-6 w-full ${
+      items.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
+      items.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto' :
+      'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+    }`}>
+      {items.map((card, index) => (
+        <FocusCard
+          key={card.id || index}
+          card={card}
+          index={index}
+          hovered={hovered}
+          setHovered={setHovered}
+          onClick={onCardClick}
+        />
+      ))}
     </div>
   );
 }
 
+// ── Material Details Modal ───────────────────────────────────────────────────
+function MaterialDetailsModal({ material, onClose }) {
+  if (!material) return null;
+  const cfg = BADGE_CONFIG[material.badge] ?? BADGE_CONFIG['Best Pick'];
+  const matImage = material.image_url || getMaterialImage(material.category);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 px-4">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-gray-950/80 backdrop-blur-md cursor-pointer"
+      />
+
+      {/* Modal Content */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="relative w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-[32px] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-20 p-2.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white rounded-full transition-colors border border-white/10"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+
+        {/* Modal Header / Banner */}
+        <div className="relative h-48 sm:h-64 shrink-0 overflow-hidden">
+          <img 
+            src={matImage} 
+            alt={material.name} 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/60 to-transparent" />
+          
+          <div className="absolute bottom-0 left-0 p-6 sm:p-8 w-full">
+            <div className="flex justify-between items-end gap-4">
+              <div>
+                <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider mb-3 ${cfg.pill}`}>
+                  <span>{cfg.icon}</span> {material.badge}
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">{material.name}</h2>
+                <p className={`text-sm mt-1 font-medium ${cfg.label}`}>{cfg.sub}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Body */}
+        <div className="p-6 sm:p-8 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent flex flex-col gap-6">
+          
+          {/* Description */}
+          <p className="text-gray-300 text-sm sm:text-base leading-relaxed bg-gray-800/30 p-4 rounded-2xl border border-gray-800/50">
+            {material.description}
+          </p>
+
+          {/* Score Bar */}
+          {material.score !== undefined && (
+            <ScoreBar score={material.score} barClass={cfg.bar} />
+          )}
+
+          {/* Specs Grid */}
+          <div>
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-800 pb-3 mb-4">
+              Technical Specifications
+            </h3>
+            <ul className="space-y-3">
+              <SpecRow label="Cost / Unit" value={`$${material.cost_per_kg?.toFixed(2) ?? '—'}`} />
+              <SpecRow label="Oxygen Transmission (OTR)" value={material.otr ?? '—'} unit="cc/m²/day" />
+              <SpecRow label="Water Vapor (WVTR)" value={material.wvtr ?? '—'} unit="g/m²/day" />
+              <SpecRow
+                label="Recyclability"
+                value={material.is_recyclable ? 'Fully Recyclable' : 'Not Recyclable'}
+                highlight={material.is_recyclable ? 'text-emerald-400' : 'text-amber-400'}
+              />
+              <SpecRow label="Material Class" value={material.material_type?.replace('_', ' ') ?? material.category ?? '—'} />
+              
+              {material.supported_temperature_conditions?.length > 0 && (
+                <SpecRow
+                  label="Temperature Rating"
+                  value={material.supported_temperature_conditions.join(', ')}
+                  highlight="text-sky-300 text-sm"
+                />
+              )}
+              {material.supported_storage_types?.length > 0 && (
+                <SpecRow
+                  label="Storage Purpose"
+                  value={material.supported_storage_types.slice(0, 2).join(', ')}
+                  highlight="text-emerald-300 text-sm"
+                />
+              )}
+            </ul>
+          </div>
+
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ── Main Page Layout ─────────────────────────────────────────────────────────
 export default function ResultsDash() {
   const navigate = useNavigate();
   const { result, resetForm } = useEngineStore();
   const [showScreeningMatrix, setShowScreeningMatrix] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
 
   // Guard: result has never been fetched
   if (!result || !result.product) {
@@ -217,23 +316,12 @@ export default function ResultsDash() {
     return (
       <main className="min-h-screen bg-gray-950 px-4 py-12 font-sans text-gray-200">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Header Card */}
           <div className="bg-gradient-to-br from-amber-950/30 via-gray-900 to-gray-950 border border-amber-500/30 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 Active Material R&D Notice
               </span>
-              {result.selected_storage_type && (
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
-                  Purpose: {result.selected_storage_type}
-                </span>
-              )}
-              {result.selected_temperature_condition && (
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
-                  Temp: {result.selected_temperature_condition}
-                </span>
-              )}
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
@@ -261,95 +349,12 @@ export default function ResultsDash() {
             </div>
           </div>
 
-          {/* Collapsible Material Screening Matrix */}
-          {failures.length > 0 && (
-            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg transition-all">
-              <button
-                type="button"
-                onClick={() => setShowScreeningMatrix(!showScreeningMatrix)}
-                className="w-full flex items-center justify-between p-5 bg-gray-900/90 hover:bg-gray-850 transition-colors text-left group cursor-pointer"
-                id="toggle-screening-matrix-btn"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-sm shrink-0">
-                    🛡️
-                  </div>
-                  <div>
-                    <h3 className="text-white font-semibold text-sm group-hover:text-emerald-400 transition-colors flex items-center gap-2">
-                      Material Screening Matrix
-                      <span className="text-xs text-gray-400 font-normal">({failures.length} Evaluated)</span>
-                    </h3>
-                    <p className="text-xs text-gray-400">
-                      {showScreeningMatrix ? 'Click to collapse failure breakdown' : 'Click to see why each candidate was rejected'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400 group-hover:text-white shrink-0">
-                  <span className="font-mono text-xs">{showScreeningMatrix ? 'Collapse' : 'Expand Matrix'}</span>
-                  <span className={`text-sm transition-transform duration-200 ${showScreeningMatrix ? 'rotate-180' : ''}`}>
-                    ▼
-                  </span>
-                </div>
-              </button>
-
-              {showScreeningMatrix && (
-                <div className="p-6 pt-2 border-t border-gray-800/80">
-                  <div className="flex items-center justify-between py-2 mb-2 text-xs text-gray-400">
-                    <span>Candidate materials filtered by physical, phase & temperature tolerances:</span>
-                    <span className="text-amber-400/80 font-mono">Strict safety filter</span>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left text-gray-300">
-                      <thead className="text-gray-500 uppercase tracking-wider text-[11px] bg-gray-950/40">
-                        <tr>
-                          <th className="py-2.5 px-4 font-semibold rounded-l-lg">Material</th>
-                          <th className="py-2.5 px-4 font-semibold">Category</th>
-                          <th className="py-2.5 px-4 font-semibold rounded-r-lg">Scientific Rejection Reason</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-800/60">
-                        {failures.map((fm, i) => (
-                          <tr key={i} className="hover:bg-gray-800/30 transition-colors">
-                            <td className="py-3 px-4 font-medium text-white whitespace-nowrap">
-                              {fm.name}
-                            </td>
-                            <td className="py-3 px-4 text-gray-400 whitespace-nowrap">
-                              {fm.category || 'Eco-Friendly'}
-                            </td>
-                            <td className="py-3 px-4">
-                              <ul className="space-y-1">
-                                {(fm.failure_reasons ?? []).map((r, j) => (
-                                  <li key={j} className="text-red-400/90 flex items-start gap-1.5">
-                                    <span className="text-red-500 font-bold shrink-0">✕</span>
-                                    <span>{r}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <Button
               onClick={() => navigate('/')}
               className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-6 py-2.5 rounded-xl shadow-lg transition-all"
             >
               ← Choose Another Dairy Commodity
-            </Button>
-            <Button
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="border-gray-700 hover:bg-gray-800 text-gray-300 font-medium px-6 py-2.5 rounded-xl"
-            >
-              Adjust Storage / Temp Parameters
             </Button>
           </div>
         </div>
@@ -377,7 +382,6 @@ export default function ResultsDash() {
     navigate('/');
   };
 
-  // Failure risks — always from the best pick
   const failureRisks = best?.failure_risks ?? [];
 
   return (
@@ -419,29 +423,30 @@ export default function ResultsDash() {
           </Button>
         </header>
 
-        {/* ── Three recommendation cards ── */}
+        {/* ── Focus Cards Gallery ── */}
         <section>
-          <div className={`grid gap-6 ${
-            picks.length === 1 ? 'grid-cols-1 max-w-sm' :
-            picks.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
-            'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-          }`}>
-            {picks.map((mat) => (
-              <RecommendationCard key={mat.id + mat.badge} mat={mat} />
-            ))}
-          </div>
+          <FocusCards items={picks} onCardClick={setSelectedMaterial} />
 
           {picks.length < 3 && (
-            <p className="text-xs text-gray-600 mt-5 text-center">
-              Only {picks.length} unique material{picks.length !== 1 ? 's' : ''} matched your filters.
-              Relax constraints to see more options.
+            <p className="text-xs text-gray-600 mt-6 text-center">
+              Only {picks.length} unique material{picks.length !== 1 ? 's' : ''} matched your exact filters.
             </p>
           )}
         </section>
 
+        {/* ── Details Modal Overlay ── */}
+        <AnimatePresence>
+          {selectedMaterial && (
+            <MaterialDetailsModal 
+              material={selectedMaterial} 
+              onClose={() => setSelectedMaterial(null)} 
+            />
+          )}
+        </AnimatePresence>
+
         {/* ── Failure Matrix ── */}
         {failureRisks.length > 0 && (
-          <section className="bg-red-950/20 border border-red-900/30 rounded-2xl p-6">
+          <section className="bg-red-950/20 border border-red-900/30 rounded-2xl p-6 mt-10">
             <h3 className="text-red-400 font-semibold text-lg mb-1 flex items-center gap-2">
               <span>⚠️</span> Failure Mode Prediction
               <span className="text-xs font-normal text-gray-500 ml-2">(for Best Pick)</span>
@@ -461,10 +466,8 @@ export default function ResultsDash() {
           </section>
         )}
 
-
-
         {/* ── CTA ── */}
-        <div className="pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
           <div>
             <p className="text-white font-semibold">Ready to source the Best Pick?</p>
             <p className="text-sm text-gray-400 mt-0.5">
