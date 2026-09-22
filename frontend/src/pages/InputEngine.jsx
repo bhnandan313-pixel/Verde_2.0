@@ -18,21 +18,21 @@ const PRODUCTS = [
     title: 'Cheddar Cheese', 
     icon: '🧀', 
     description: 'Solid phase. Strict OTR ≤ 5 needed for 180-day extended shelf life.',
-    image: 'https://images.unsplash.com/photo-1618164422027-55742278eb07?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://www.tastingtable.com/img/gallery/the-small-difference-between-colby-cheese-and-cheddar-cheese/l-intro-1666287343.jpg'
   },
   { 
     id: 'butter', 
     title: 'Butter', 
     icon: '🧈', 
     description: 'Semi-solid. Ultra-low WVTR (2.0) needed to prevent moisture loss and oxidation.',
-    image: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://www.shutterstock.com/image-photo/fresh-butter-slices-on-wooden-600nw-2568593227.jpg'
   },
   { 
     id: 'yogurt', 
     title: 'Yogurt', 
     icon: '🥣', 
     description: 'Fermented (pH 4.2). Moderate barrier (OTR 30) for 21-day life.',
-    image: 'https://images.unsplash.com/photo-1571212515416-fbf3ed24d3dd?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://www.littlehomeinthemaking.com/wp-content/uploads/2023/01/strainingwheySCALED-8-of-9.jpg'
   },
   { 
     id: 'cream_cheese', 

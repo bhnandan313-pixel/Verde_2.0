@@ -74,12 +74,12 @@ def run_recommendation():
 
     Response shape (aligned with ResultsDash.jsx):
     {
-        "product":              <dairy product dict>,
-        "recommended_material": { name, description, otr, wvtr, is_recyclable,
-                                  cost_per_kg, failure_risks, ... },
-        "suppliers":            [ { id, name, tier, location, moq_kg,
-                                    lead_time_days, score, ... } ],
-        "failure_matrix":       [ <rejected material dicts with failure_reasons> ]
+        "product":      <dairy product dict>,
+        "best_pick":    { ...material fields, badge: "Best Pick"   },
+        "budget_pick":  { ...material fields, badge: "Budget Choice" },
+        "premium_pick": { ...material fields, badge: "Premium Choice" },
+        "suppliers":    [ { id, name, tier, location, moq_kg, lead_time_days, score, ... } ],
+        "failure_matrix": [ <rejected material dicts with failure_reasons> ]
     }
     """
     body = request.get_json(silent=True) or {}
@@ -100,49 +100,64 @@ def run_recommendation():
     except ValueError as exc:
         abort(404, description=str(exc))
 
-    # --- Pick the top-ranked material ---
     matches = engine_result.get('matches', [])
+
     if not matches:
-        # No match found — return a clean empty result
         return jsonify({
-            'product':              engine_result['product'],
-            'recommended_material': None,
-            'suppliers':            [],
-            'failure_matrix':       engine_result.get('failures', []),
+            'product':      engine_result['product'],
+            'best_pick':    None,
+            'budget_pick':  None,
+            'premium_pick': None,
+            'suppliers':    [],
+            'failure_matrix': engine_result.get('failures', []),
         })
 
-    top = matches[0]
+    # ── Derive the three picks ──────────────────────────────────────────────
+    # best_pick  : highest composite score (engine already sorted desc by score)
+    best_raw = matches[0]
 
-    # --- Build failure_risks from material properties ---
-    failure_risks = _generate_failure_risks(top, engine_result['product'])
+    # budget_pick : cheapest cost_per_unit; falls back to best if only 1 match
+    budget_raw = min(matches, key=lambda m: m.get('cost_per_unit', 9999))
 
-    # --- Map packaging material → ResultsDash field names ---
-    recommended_material = {
-        'id':           top['id'],
-        'name':         top['name'],
-        'description':  top.get('description', ''),
-        'material_type':top.get('material_type', ''),
-        'otr':          top.get('OTR_limit'),
-        'wvtr':         top.get('WVTR_limit'),
-        'is_recyclable':top.get('recyclable', False),
-        'cost_per_kg':  top.get('cost_per_unit'),   # stored per unit; label shown as /kg
-        'ph_range':     top.get('pH_range'),
-        'compatible_phase_states': top.get('compatible_phase_states', []),
-        'score':        top.get('score'),
-        'failure_risks':failure_risks,
-    }
+    # premium_pick: highest total barrier headroom (OTR_limit + WVTR_limit)
+    #               represents the most protective / premium option
+    premium_raw = max(matches, key=lambda m: m.get('OTR_limit', 0) + m.get('WVTR_limit', 0))
 
-    # --- Auto-fetch suppliers for the top material ---
+    def _map_material(mat, badge, failure_risks):
+        return {
+            'id':            mat['id'],
+            'name':          mat['name'],
+            'description':   mat.get('description', ''),
+            'material_type': mat.get('material_type', ''),
+            'otr':           mat.get('OTR_limit'),
+            'wvtr':          mat.get('WVTR_limit'),
+            'is_recyclable': mat.get('recyclable', False),
+            'cost_per_kg':   mat.get('cost_per_unit'),
+            'ph_range':      mat.get('pH_range'),
+            'compatible_phase_states': mat.get('compatible_phase_states', []),
+            'score':         mat.get('score'),
+            'badge':         badge,
+            'failure_risks': failure_risks,
+        }
+
+    product = engine_result['product']
+    best_pick    = _map_material(best_raw,    'Best Pick',      _generate_failure_risks(best_raw, product))
+    budget_pick  = _map_material(budget_raw,  'Budget Choice',  _generate_failure_risks(budget_raw, product))
+    premium_pick = _map_material(premium_raw, 'Premium Choice', _generate_failure_risks(premium_raw, product))
+
+    # Keep backward-compat key pointing to best_pick so old consumers don't break
+    recommended_material = best_pick
+
+    # --- Auto-fetch suppliers for the best-pick material ---
     try:
         sourcing_result = find_suppliers(
-            top['id'],
+            best_raw['id'],
             user_moq=int(user_moq) if user_moq else None,
         )
         raw_suppliers = sourcing_result.get('matches', [])
     except Exception:
         raw_suppliers = []
 
-    # Map suppliers → ResultsDash field names
     suppliers = [
         {
             'id':             s['id'],
@@ -160,8 +175,11 @@ def run_recommendation():
     ]
 
     return jsonify({
-        'product':              engine_result['product'],
-        'recommended_material': recommended_material,
+        'product':              product,
+        'best_pick':            best_pick,
+        'budget_pick':          budget_pick,
+        'premium_pick':         premium_pick,
+        'recommended_material': recommended_material,   # backward-compat alias
         'suppliers':            suppliers,
         'failure_matrix':       engine_result.get('failures', []),
     })

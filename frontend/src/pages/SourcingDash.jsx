@@ -1,24 +1,171 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import useEngineStore from '../store/useEngineStore';
 import { Button } from '../components/ui/Button';
 
-/**
- * SourcingDash — Route: /sourcing
- * Page 3: Displays ranked suppliers for the recommended material,
- * with scale-based strategy messaging (Startup vs Enterprise).
- */
+const MapPinIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+);
+
+const ChevronDownIcon = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m6 9 6 6 6-6"/>
+  </svg>
+);
+
+const PackageIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m7.5 4.27 9 5.15"/>
+    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+    <path d="m3.3 7 8.7 5 8.7-5"/>
+    <path d="M12 22V12"/>
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+);
+
+function SupplierMapCard({ supplier }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // A stylized dark-mode map placeholder
+  const mapImageUrl = "https://media.wired.com/photos/59269cd37034dc5f91bec0f1/master/pass/GoogleMapTA.jpg";
+
+  return (
+    <motion.div 
+      layout
+      className={`bg-gray-900 border rounded-2xl overflow-hidden transition-colors duration-300 ${
+        isExpanded ? 'border-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.1)]' : 'border-gray-800 hover:border-gray-700'
+      }`}
+    >
+      {/* ── Always Visible Header (Clickable) ── */}
+      <motion.div 
+        layout="position"
+        className="p-5 cursor-pointer group"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex justify-between items-start mb-2">
+          <div>
+            <h3 className="text-lg font-bold text-white leading-tight group-hover:text-emerald-400 transition-colors">
+              {supplier.name}
+            </h3>
+            <span className="inline-block px-2 py-0.5 bg-gray-800 text-[10px] uppercase tracking-wider rounded text-gray-400 mt-2">
+              {supplier.tier}
+            </span>
+          </div>
+          <button className="h-8 w-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 group-hover:bg-gray-700 group-hover:text-white transition-colors shrink-0">
+            <ChevronDownIcon className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-3">
+          <MapPinIcon />
+          <span>{supplier.location}</span>
+        </div>
+      </motion.div>
+
+      {/* ── Collapsible Map & Details Section ── */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-5">
+              <hr className="border-gray-800 mb-5" />
+
+              {/* Simulated Map View */}
+              <div className="relative w-full h-40 rounded-xl overflow-hidden mb-5 bg-gray-950 border border-gray-800">
+                <img 
+                  src={mapImageUrl} 
+                  alt={`Map of ${supplier.location}`} 
+                  className="object-cover w-full h-full opacity-40 mix-blend-luminosity pointer-events-none"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent pointer-events-none" />
+                
+                {/* Pulsing Location Pin */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative flex h-5 w-5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                    <span className="relative inline-flex rounded-full h-5 w-5 bg-emerald-500 border-2 border-gray-900 shadow-lg"></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-1">
+                    <PackageIcon /> Min. Order
+                  </div>
+                  <div className="text-white font-mono text-sm">
+                    {supplier.moq_kg?.toLocaleString()} kg
+                  </div>
+                </div>
+                <div className="bg-gray-950 border border-gray-800 rounded-lg p-3 flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-gray-500 text-xs mb-1">
+                    <ClockIcon /> Lead Time
+                  </div>
+                  <div className="text-white font-mono text-sm">
+                    {supplier.lead_time_days} days
+                  </div>
+                </div>
+              </div>
+
+              {supplier.certifications?.length > 0 && (
+                <div className="mb-5 text-xs text-gray-400 flex flex-wrap gap-2">
+                  <span className="text-gray-500">Certifications:</span>
+                  {supplier.certifications.map((cert, i) => (
+                    <span key={i} className="text-emerald-400/80 bg-emerald-400/10 px-1.5 py-0.5 rounded">
+                      {cert}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Action Button */}
+              <Button
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20 text-sm py-2 rounded-xl transition-all"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (supplier.contact_email) window.open(`mailto:${supplier.contact_email}`);
+                }}
+              >
+                Request Quote
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
 export default function SourcingDash() {
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const { form, result, resetForm } = useEngineStore();
 
-  // Guard: must come from a completed recommendation
-  if (!result || !result.recommended_material) {
+  // Guard: must come from a completed recommendation with at least one pick
+  if (!result || (!result.best_pick && !result.recommended_material)) {
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-white">
-        <p className="mb-4 text-gray-400">No recommendation found. Please run the engine first.</p>
+      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-white gap-4 px-4">
+        <p className="text-5xl mb-2">🏭</p>
+        <h2 className="text-xl font-bold text-white">No Recommendation Yet</h2>
+        <p className="text-gray-400 text-sm text-center max-w-sm">Run the engine first to get packaging recommendations before sourcing suppliers.</p>
         <Button
           onClick={() => navigate('/')}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-md"
+          className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-md mt-2"
         >
           Go to Engine
         </Button>
@@ -26,7 +173,7 @@ export default function SourcingDash() {
     );
   }
 
-  const mat       = result.recommended_material;
+  const mat       = result.best_pick ?? result.recommended_material;
   const suppliers = result.suppliers || [];
   const userMoq   = Number(form.max_moq) || 0;
   const isStartup = userMoq > 0 && userMoq < 300;
@@ -49,7 +196,7 @@ export default function SourcingDash() {
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
               Find Suppliers
             </h1>
-            <p className="text-gray-400 mt-2 text-sm md:text-base">
+            <p className="text-gray-400 mt-2 text-sm md:text-base max-w-xl">
               Based on your estimated volume of{' '}
               <strong className="text-white">{userMoq || 'unspecified'} units/month</strong>,
               here are the optimal suppliers for{' '}
@@ -99,39 +246,11 @@ export default function SourcingDash() {
           </div>
         ) : null}
 
-        {/* ── Supplier Grid ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* ── Supplier Grid with Animated Map Cards ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {suppliers.length > 0 ? (
             suppliers.map((supplier) => (
-              <div
-                key={supplier.id}
-                className="bg-gray-900 border border-gray-800 p-5 rounded-xl hover:border-emerald-500/50 transition-colors flex flex-col"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="text-base font-bold text-white leading-tight">{supplier.name}</h3>
-                    <span className="inline-block px-2 py-0.5 bg-gray-800 text-[10px] uppercase tracking-wider rounded text-gray-400 mt-2">
-                      {supplier.tier}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-xs text-gray-400 mb-5 space-y-1.5 flex-grow">
-                  <p>📍 {supplier.location}</p>
-                  <p>📦 Min. Order: <span className="text-white">{supplier.moq_kg?.toLocaleString()} units</span></p>
-                  <p>⚡ Lead Time: <span className="text-white">{supplier.lead_time_days} days</span></p>
-                  {supplier.certifications?.length > 0 && (
-                    <p>🏅 {supplier.certifications.join(' · ')}</p>
-                  )}
-                </div>
-
-                <Button
-                  className="w-full bg-gray-800 hover:bg-emerald-600 text-white border border-gray-700 hover:border-emerald-500 transition-all text-sm py-2 rounded-lg"
-                  onClick={() => supplier.contact_email && window.open(`mailto:${supplier.contact_email}`)}
-                >
-                  Request Quote
-                </Button>
-              </div>
+              <SupplierMapCard key={supplier.id} supplier={supplier} />
             ))
           ) : (
             <div className="col-span-full py-16 text-center border border-dashed border-gray-800 rounded-xl">
