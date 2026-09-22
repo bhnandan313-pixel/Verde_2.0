@@ -51,7 +51,7 @@ class JsonDB:
     def get_packaging_material_by_id(self, material_id: str) -> dict | None:
         """Return a single packaging material by its id, or None if not found."""
         return next(
-            (m for m in self._packaging_materials if m['id'] == material_id), None
+            (m for m in self._packaging_materials if m['id'] == material_id or m.get('material_id') == material_id), None
         )
 
     def get_materials_for_phase(self, phase_state: str) -> list[dict]:

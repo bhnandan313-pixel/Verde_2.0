@@ -116,28 +116,42 @@ def run_recommendation():
     # best_pick  : highest composite score (engine already sorted desc by score)
     best_raw = matches[0]
 
-    # budget_pick : cheapest cost_per_unit; falls back to best if only 1 match
-    budget_raw = min(matches, key=lambda m: m.get('cost_per_unit', 9999))
+    # budget_pick : lowest cost_per_unit; picks a distinct material if available
+    other_matches = [m for m in matches if m['id'] != best_raw['id']]
+    if other_matches:
+        budget_raw = min(other_matches, key=lambda m: m.get('cost_per_unit', 9999))
+    else:
+        budget_raw = best_raw
 
-    # premium_pick: highest total barrier headroom (OTR_limit + WVTR_limit)
-    #               represents the most protective / premium option
-    premium_raw = max(matches, key=lambda m: m.get('OTR_limit', 0) + m.get('WVTR_limit', 0))
+    # premium_pick: longest shelf life / highest protective barrier
+    third_matches = [m for m in other_matches if m['id'] != budget_raw['id']]
+    if third_matches:
+        premium_raw = max(third_matches, key=lambda m: (m.get('shelf_life_extension_days', 0), -m.get('otr_value_cc_m2_day', 9999)))
+    elif other_matches:
+        premium_raw = max(other_matches, key=lambda m: (m.get('shelf_life_extension_days', 0), -m.get('otr_value_cc_m2_day', 9999)))
+    else:
+        premium_raw = best_raw
 
     def _map_material(mat, badge, failure_risks):
         return {
-            'id':            mat['id'],
-            'name':          mat['name'],
-            'description':   mat.get('description', ''),
-            'material_type': mat.get('material_type', ''),
-            'otr':           mat.get('OTR_limit'),
-            'wvtr':          mat.get('WVTR_limit'),
-            'is_recyclable': mat.get('recyclable', False),
-            'cost_per_kg':   mat.get('cost_per_unit'),
-            'ph_range':      mat.get('pH_range'),
-            'compatible_phase_states': mat.get('compatible_phase_states', []),
-            'score':         mat.get('score'),
-            'badge':         badge,
-            'failure_risks': failure_risks,
+            'id':                        mat['id'],
+            'name':                      mat['name'],
+            'description':               mat.get('description', ''),
+            'material_type':             mat.get('material_type', ''),
+            'category':                  mat.get('category', ''),
+            'otr':                       mat.get('otr_value_cc_m2_day', mat.get('OTR_limit')),
+            'wvtr':                      mat.get('wvtr_value_g_m2_day', mat.get('WVTR_limit')),
+            'is_recyclable':             mat.get('recyclable', mat.get('epr_compliant', True)),
+            'cost_per_kg':               mat.get('cost_per_unit', 0.50),
+            'ph_range':                  mat.get('pH_range'),
+            'compatible_phase_states':   mat.get('compatible_phase_states', []),
+            'shelf_life_extension_days': mat.get('shelf_life_extension_days'),
+            'compostability':            mat.get('compostability', ''),
+            'bio_source':                mat.get('bio_source', ''),
+            'image_url':                 mat.get('image_url'),
+            'score':                     mat.get('score'),
+            'badge':                     badge,
+            'failure_risks':             failure_risks,
         }
 
     product = engine_result['product']
@@ -189,55 +203,31 @@ def _generate_failure_risks(material: dict, product: dict) -> list[dict]:
     """Derive human-readable failure risk cards from material & product properties."""
     risks = []
 
-    temp_sensitivity = product.get('temperature_sensitivity', 'medium')
-    if temp_sensitivity == 'high':
-        risks.append({
-            'type': 'Temperature Deviation',
-            'desc': (
-                f"This product is highly temperature-sensitive. "
-                f"If the {material['name']} is exposed to temperatures above the cold-chain "
-                f"threshold, off-gassing will compromise barrier integrity."
-            ),
-        })
+    # 1. Use the curated failure modes from the dataset if present
+    failure_modes = material.get('failure_modes', {})
+    if isinstance(failure_modes, dict) and failure_modes:
+        for mode_key, mode_desc in failure_modes.items():
+            risks.append({
+                'type': mode_key.replace('_', ' ').title(),
+                'desc': mode_desc,
+            })
 
-    if material.get('OTR_limit', 100) < 10:
+    # 2. Add product-specific risks if not already covered
+    if product.get('temperature_sensitivity') == 'high' and not any('Temp' in r['type'] for r in risks):
         risks.append({
-            'type': 'Physical Impact / Micro-puncture',
+            'type': 'Cold-Chain Deviation',
             'desc': (
-                "High-barrier films are susceptible to micro-punctures from sharp impacts. "
-                "A single pinhole breaks the hermetic seal and accelerates spoilage."
-            ),
-        })
-
-    if product.get('moisture_content', 0) > 75:
-        risks.append({
-            'type': 'Moisture Migration',
-            'desc': (
-                f"With {product.get('moisture_content')}% moisture content, "
-                "condensation inside the pack can delaminate multi-layer films "
-                "if the WVTR budget is exceeded during distribution."
-            ),
-        })
-
-    ph = product.get('pH', 7)
-    ph_min, ph_max = material.get('pH_range', [0, 14])
-    if ph <= 4.5:
-        risks.append({
-            'type': 'Acid-Induced Degradation',
-            'desc': (
-                f"Product pH {ph} is acidic. Prolonged contact with the inner "
-                "film surface can cause acid migration, affecting taste and "
-                "potentially weakening seal strength over time."
+                f"{product['name']} is highly temperature-sensitive. "
+                f"Storage above designated cold-chain thresholds will accelerate microbial activity."
             ),
         })
 
     if not risks:
         risks.append({
-            'type': 'Seal Integrity',
+            'type': 'Seal Integrity Validation',
             'desc': (
-                "Ensure heat-seal parameters (temperature, pressure, dwell time) "
-                "are validated on your filling line. Incorrect seal settings are "
-                "the most common failure mode for this material format."
+                f"Ensure heat-sealing temperature, pressure, and dwell time are calibrated "
+                f"for {material['name']} on your filling line."
             ),
         })
 

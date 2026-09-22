@@ -4,53 +4,66 @@ engine.py — Deterministic Packaging Recommendation Engine
 Matching algorithm:
   1. Filter candidate materials whose compatible_phase_states includes the
      product's phase_state.
-  2. Filter by OTR_limit  >= product's required_OTR
-     and  WVTR_limit >= product's required_WVTR.
-  3. Filter by pH_range covering the product's pH.
-  4. Filter by max_moisture_exposure >= product's moisture_content.
-  5. Apply optional user constraints (MOQ ceiling, max cost, recyclable-only).
-  6. Score remaining candidates by a weighted composite:
-       score = w_cost * norm_cost + w_otr * otr_margin + w_wvtr * wvtr_margin
-     where margins are (limit - required) / limit  (higher = more headroom).
-  7. Sort descending by score; annotate each with a failure reason if it was
-     rejected, so the caller can build a Failure Matrix.
+  2. Filter by pH_range covering the product's pH.
+  3. Filter by max_moisture_exposure >= product's moisture_content.
+  4. Apply optional user constraints (MOQ ceiling, max cost, recyclable-only).
+  5. Score remaining candidates by a weighted multi-criteria composite:
+       - Barrier efficiency (lower OTR/WVTR = stronger barrier protection)
+       - Shelf life extension capacity
+       - Cost-effectiveness (lower cost_per_unit / cost_index)
+       - Dairy application affinity (prioritises materials formulated for this specific commodity)
+  6. Annotate each rejected candidate with specific reasons for the Failure Matrix.
+  7. Sort descending by score.
 """
 
 from __future__ import annotations
 
+import math
 from repository.json_db import JsonDB
-
-_db = JsonDB()
-
-# Weight coefficients (must sum to 1.0)
-WEIGHTS = {
-    'cost': 0.50,
-    'otr_margin': 0.25,
-    'wvtr_margin': 0.25,
-}
 
 
 def _score(material: dict, product: dict) -> float:
     """Compute a normalised composite score for a material–product pair."""
-    # Cost: lower cost → higher score (invert and normalise against $1 ceiling)
-    max_cost = 1.0
-    cost_score = 1.0 - min(material['cost_per_unit'] / max_cost, 1.0)
+    # Cost score: 1.0 (lowest cost) to 0.1 (high cost)
+    cost_index = material.get('cost_index_per_kg', 5)
+    cost_score = (11.0 - min(cost_index, 10.0)) / 10.0
 
-    # Barrier margins: excess headroom relative to the limit
-    otr_margin = (
-        (material['OTR_limit'] - product['required_OTR']) / material['OTR_limit']
-        if material['OTR_limit'] > 0 else 1.0
-    )
-    wvtr_margin = (
-        (material['WVTR_limit'] - product['required_WVTR']) / material['WVTR_limit']
-        if material['WVTR_limit'] > 0 else 1.0
-    )
+    # Barrier capability: lower OTR & WVTR means stronger barrier
+    otr = max(material.get('otr_value_cc_m2_day', material.get('OTR_limit', 1.0)), 0.1)
+    wvtr = max(material.get('wvtr_value_g_m2_day', material.get('WVTR_limit', 1.0)), 0.1)
+    # Logarithmic barrier index (higher score for lower transmission rates)
+    barrier_score = 1.0 / (1.0 + math.log10(otr * wvtr) / 6.0)
 
-    return (
-        WEIGHTS['cost'] * cost_score
-        + WEIGHTS['otr_margin'] * otr_margin
-        + WEIGHTS['wvtr_margin'] * wvtr_margin
+    # Shelf life extension: 2 to 30 days
+    shelf_days = material.get('shelf_life_extension_days', 5)
+    shelf_score = min(shelf_days / 30.0, 1.0)
+
+    # Application affinity: check if the product matches explicitly declared applications
+    app_affinity = 0.0
+    prod_tokens = set(product['id'].lower().split('_') + product['name'].lower().split())
+    for app in material.get('dairy_applications', []):
+        app_words = set(app.lower().split())
+        if prod_tokens & app_words:
+            app_affinity = 0.20
+            break
+
+    # Barrier fit: bonus if material transmission rate is comfortably below product tolerance
+    barrier_fit = 0.0
+    req_otr = product.get('required_OTR', 50.0)
+    req_wvtr = product.get('required_WVTR', 10.0)
+    if otr <= req_otr * 1.5:
+        barrier_fit += 0.10
+    if wvtr <= req_wvtr * 1.5:
+        barrier_fit += 0.10
+
+    total = (
+        0.25 * barrier_score
+        + 0.25 * shelf_score
+        + 0.20 * cost_score
+        + 0.15 * app_affinity
+        + 0.15 * barrier_fit
     )
+    return round(total, 4)
 
 
 def recommend(
@@ -78,11 +91,12 @@ def recommend(
         "failures":  [<rejected material dicts with 'failure_reasons' list>],
     }
     """
-    product = _db.get_dairy_product_by_id(product_id)
+    db = JsonDB()
+    product = db.get_dairy_product_by_id(product_id)
     if product is None:
         raise ValueError(f"Unknown product id: '{product_id}'")
 
-    all_materials = _db.get_all_packaging_materials()
+    all_materials = db.get_all_packaging_materials()
 
     matches: list[dict] = []
     failures: list[dict] = []
@@ -90,53 +104,47 @@ def recommend(
     for mat in all_materials:
         reasons: list[str] = []
 
-        # --- Hard filters ---
-        if product['phase_state'] not in mat.get('compatible_phase_states', []):
+        # 1. Phase state compatibility
+        compatible_phases = mat.get('compatible_phase_states', [])
+        if product['phase_state'] not in compatible_phases:
             reasons.append(
-                f"Phase incompatible: material supports {mat['compatible_phase_states']}, "
+                f"Phase incompatible: material designed for {compatible_phases}, "
                 f"product is '{product['phase_state']}'"
             )
 
-        if mat['OTR_limit'] < product['required_OTR']:
-            reasons.append(
-                f"OTR too high: limit={mat['OTR_limit']} < required={product['required_OTR']}"
-            )
-
-        if mat['WVTR_limit'] < product['required_WVTR']:
-            reasons.append(
-                f"WVTR too high: limit={mat['WVTR_limit']} < required={product['required_WVTR']}"
-            )
-
+        # 2. pH range check
         ph_min, ph_max = mat.get('pH_range', [0, 14])
         if not (ph_min <= product['pH'] <= ph_max):
             reasons.append(
                 f"pH out of range: product pH={product['pH']} not in [{ph_min}, {ph_max}]"
             )
 
-        if mat.get('max_moisture_exposure', 100) < product['moisture_content']:
+        # 3. Moisture exposure check
+        max_moisture = mat.get('max_moisture_exposure', 100)
+        if max_moisture < product.get('moisture_content', 0):
             reasons.append(
-                f"Moisture exposure exceeded: max={mat['max_moisture_exposure']}% "
+                f"Moisture limit exceeded: material tolerance is {max_moisture}% "
                 f"< product moisture={product['moisture_content']}%"
             )
 
-        # --- Soft / user constraints ---
-        if max_moq is not None and mat['MOQ'] > max_moq:
-            reasons.append(f"MOQ {mat['MOQ']} exceeds user limit {max_moq}")
+        # 4. Optional user constraints
+        if max_moq is not None and mat.get('MOQ', 0) > max_moq:
+            reasons.append(f"MOQ {mat['MOQ']:,} exceeds user limit {max_moq:,}")
 
-        if max_cost is not None and mat['cost_per_unit'] > max_cost:
+        if max_cost is not None and mat.get('cost_per_unit', 0) > max_cost:
             reasons.append(
                 f"Cost ${mat['cost_per_unit']:.2f} exceeds user limit ${max_cost:.2f}"
             )
 
-        if recyclable_only and not mat.get('recyclable', False):
-            reasons.append("Material is not recyclable")
+        if recyclable_only and not (mat.get('recyclable', False) or mat.get('epr_compliant', False)):
+            reasons.append("Material is not EPR / recyclable certified")
 
-        # --- Route to match or failure ---
+        # Route to match or failure
         if reasons:
             failures.append({**mat, 'failure_reasons': reasons})
         else:
             score = _score(mat, product)
-            matches.append({**mat, 'score': round(score, 4)})
+            matches.append({**mat, 'score': score})
 
     # Sort matches best-first
     matches.sort(key=lambda m: m['score'], reverse=True)
@@ -150,4 +158,4 @@ def recommend(
 
 def get_all_products() -> list[dict]:
     """Convenience wrapper — returns all dairy products for dropdown population."""
-    return _db.get_all_dairy_products()
+    return JsonDB().get_all_dairy_products()
