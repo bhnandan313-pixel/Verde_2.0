@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useEngineStore from '../store/useEngineStore';
 import { Button } from '../components/ui/Button';
@@ -165,6 +166,20 @@ function RecommendationCard({ mat, isMain }) {
             highlight={mat.is_recyclable ? 'text-emerald-400' : 'text-amber-400'}
           />
           <SpecRow label="Material type" value={mat.material_type?.replace('_', ' ') ?? '—'} />
+          {mat.supported_temperature_conditions?.length > 0 && (
+            <SpecRow
+              label="Temperature"
+              value={mat.supported_temperature_conditions.join(', ')}
+              highlight="text-sky-300 text-xs truncate max-w-[150px] inline-block text-right"
+            />
+          )}
+          {mat.supported_storage_types?.length > 0 && (
+            <SpecRow
+              label="Rated storage"
+              value={mat.supported_storage_types.slice(0, 2).join(', ')}
+              highlight="text-emerald-300 text-xs truncate max-w-[150px] inline-block text-right"
+            />
+          )}
         </ul>
       </div>
     </div>
@@ -174,6 +189,7 @@ function RecommendationCard({ mat, isMain }) {
 export default function ResultsDash() {
   const navigate = useNavigate();
   const { result, resetForm } = useEngineStore();
+  const [showScreeningMatrix, setShowScreeningMatrix] = useState(false);
 
   // Guard: result has never been fetched
   if (!result || !result.product) {
@@ -196,56 +212,144 @@ export default function ResultsDash() {
   const hasMatches = !!(result.best_pick || result.recommended_material);
   if (!hasMatches) {
     const failures = result.failure_matrix || [];
+    const isLiquid = result.product?.phase_state === 'liquid';
+
     return (
       <main className="min-h-screen bg-gray-950 px-4 py-12 font-sans text-gray-200">
-        <div className="max-w-3xl mx-auto space-y-8">
-          <header className="border-b border-gray-800 pb-6">
-            <span className="text-amber-400 font-bold tracking-wider text-sm uppercase mb-1 block">⚠ No Matches Found</span>
-            <h1 className="text-4xl font-extrabold text-white">{result.product?.name ?? 'Your Product'}</h1>
-            <p className="text-gray-400 mt-2 text-sm">
-              None of the {failures.length} packaging materials in the database passed all your filter constraints.
-              Try relaxing the MOQ, cost ceiling, or recyclable-only filter.
-            </p>
-          </header>
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Header Card */}
+          <div className="bg-gradient-to-br from-amber-950/30 via-gray-900 to-gray-950 border border-amber-500/30 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                Active Material R&D Notice
+              </span>
+              {result.selected_storage_type && (
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
+                  Purpose: {result.selected_storage_type}
+                </span>
+              )}
+              {result.selected_temperature_condition && (
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
+                  Temp: {result.selected_temperature_condition}
+                </span>
+              )}
+            </div>
 
-          {failures.length > 0 && (
-            <div className="bg-red-950/20 border border-red-900/30 rounded-2xl p-6">
-              <h3 className="text-red-400 font-semibold text-lg mb-4 flex items-center gap-2">
-                <span>❌</span> Why All Materials Were Rejected
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left text-gray-400">
-                  <thead className="text-gray-500 uppercase tracking-wider border-b border-gray-800">
-                    <tr>
-                      <th className="pb-2 pr-4">Material</th>
-                      <th className="pb-2">Rejection Reasons</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {failures.map((fm, i) => (
-                      <tr key={i} className="border-t border-gray-800/60">
-                        <td className="py-3 pr-4 font-medium text-gray-300 whitespace-nowrap">{fm.name}</td>
-                        <td className="py-3">
-                          <ul className="space-y-0.5">
-                            {(fm.failure_reasons ?? []).map((r, j) => (
-                              <li key={j} className="text-red-400/80">• {r}</li>
-                            ))}
-                          </ul>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+              We are researching on more materials / The materials cannot be found
+            </h1>
+
+            <p className="text-gray-300 mt-3 text-base leading-relaxed max-w-2xl">
+              No certified eco-friendly packaging material in our catalog currently satisfies the containment, barrier, and physical transport requirements for <strong className="text-emerald-400 font-semibold">{result.product?.name ?? 'this dairy product'}</strong>.
+            </p>
+
+            {/* Scientific Logic Explanation Banner */}
+            <div className="mt-6 p-4 rounded-xl bg-gray-950/70 border border-amber-500/20 text-sm text-gray-300 space-y-2">
+              <div className="flex items-center gap-2 text-amber-400 font-semibold text-xs tracking-wider uppercase">
+                <span>🔬</span> Physical & Containment Science
               </div>
+              {isLiquid ? (
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  Liquid milk requires aseptic hermetic fluid containment (e.g. multi-layer barrier liquid cartons or leakproof blow-moulded bottles). Porous paper wraps (like Kraft paper), moulded fibre trays, or bioplastic wraps cannot safely hold or transport liquid milk without rapid barrier collapse, leakage, and microbial spoilage. Our team is actively researching commercial-grade biopolymer liquid cartons for this application.
+                </p>
+              ) : (
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  The physical characteristics of this commodity (moisture {result.product?.moisture_content}%, pH {result.product?.pH}) combined with your selected storage purpose or temperature conditions exceed the safety limits of all {failures.length} currently indexed bio-materials.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Collapsible Material Screening Matrix */}
+          {failures.length > 0 && (
+            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg transition-all">
+              <button
+                type="button"
+                onClick={() => setShowScreeningMatrix(!showScreeningMatrix)}
+                className="w-full flex items-center justify-between p-5 bg-gray-900/90 hover:bg-gray-850 transition-colors text-left group cursor-pointer"
+                id="toggle-screening-matrix-btn"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-sm shrink-0">
+                    🛡️
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold text-sm group-hover:text-emerald-400 transition-colors flex items-center gap-2">
+                      Material Screening Matrix
+                      <span className="text-xs text-gray-400 font-normal">({failures.length} Evaluated)</span>
+                    </h3>
+                    <p className="text-xs text-gray-400">
+                      {showScreeningMatrix ? 'Click to collapse failure breakdown' : 'Click to see why each candidate was rejected'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-400 group-hover:text-white shrink-0">
+                  <span className="font-mono text-xs">{showScreeningMatrix ? 'Collapse' : 'Expand Matrix'}</span>
+                  <span className={`text-sm transition-transform duration-200 ${showScreeningMatrix ? 'rotate-180' : ''}`}>
+                    ▼
+                  </span>
+                </div>
+              </button>
+
+              {showScreeningMatrix && (
+                <div className="p-6 pt-2 border-t border-gray-800/80">
+                  <div className="flex items-center justify-between py-2 mb-2 text-xs text-gray-400">
+                    <span>Candidate materials filtered by physical, phase & temperature tolerances:</span>
+                    <span className="text-amber-400/80 font-mono">Strict safety filter</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left text-gray-300">
+                      <thead className="text-gray-500 uppercase tracking-wider text-[11px] bg-gray-950/40">
+                        <tr>
+                          <th className="py-2.5 px-4 font-semibold rounded-l-lg">Material</th>
+                          <th className="py-2.5 px-4 font-semibold">Category</th>
+                          <th className="py-2.5 px-4 font-semibold rounded-r-lg">Scientific Rejection Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-800/60">
+                        {failures.map((fm, i) => (
+                          <tr key={i} className="hover:bg-gray-800/30 transition-colors">
+                            <td className="py-3 px-4 font-medium text-white whitespace-nowrap">
+                              {fm.name}
+                            </td>
+                            <td className="py-3 px-4 text-gray-400 whitespace-nowrap">
+                              {fm.category || 'Eco-Friendly'}
+                            </td>
+                            <td className="py-3 px-4">
+                              <ul className="space-y-1">
+                                {(fm.failure_reasons ?? []).map((r, j) => (
+                                  <li key={j} className="text-red-400/90 flex items-start gap-1.5">
+                                    <span className="text-red-500 font-bold shrink-0">✕</span>
+                                    <span>{r}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          <div className="flex gap-3">
+          {/* Quick Actions */}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
             <Button
               onClick={() => navigate('/')}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-md"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-6 py-2.5 rounded-xl shadow-lg transition-all"
             >
-              ← Adjust Filters
+              ← Choose Another Dairy Commodity
+            </Button>
+            <Button
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="border-gray-700 hover:bg-gray-800 text-gray-300 font-medium px-6 py-2.5 rounded-xl"
+            >
+              Adjust Storage / Temp Parameters
             </Button>
           </div>
         </div>
@@ -283,9 +387,21 @@ export default function ResultsDash() {
         {/* ── Header ── */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-gray-800 pb-6 gap-4">
           <div>
-            <span className="text-emerald-500 font-bold tracking-wider text-sm uppercase mb-1 block">
-              Packaging Recommendations
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <span className="text-emerald-500 font-bold tracking-wider text-sm uppercase">
+                Packaging Recommendations
+              </span>
+              {result.selected_temperature_condition && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-950/80 text-sky-400 border border-sky-500/40">
+                  <span>🌡️</span> {result.selected_temperature_condition}
+                </span>
+              )}
+              {result.selected_storage_type && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-500/40">
+                  <span>📦</span> {result.selected_storage_type}
+                </span>
+              )}
+            </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
               {result.product?.name ?? 'Your Product'}
             </h1>

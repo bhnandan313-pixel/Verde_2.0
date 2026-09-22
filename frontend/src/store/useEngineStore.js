@@ -17,6 +17,8 @@ const useEngineStore = create(
       // -------------------------------------------------------
       form: {
         product_id: '',
+        storage_type: '',
+        temperature_condition: '',
         max_moq: '',
         max_cost: '',
         recyclable_only: false,
@@ -31,6 +33,8 @@ const useEngineStore = create(
         set({
           form: {
             product_id: '',
+            storage_type: '',
+            temperature_condition: '',
             max_moq: '',
             max_cost: '',
             recyclable_only: false,

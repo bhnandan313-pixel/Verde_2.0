@@ -78,9 +78,24 @@ const PRODUCTS = [
   },
 ];
 
+const TEMPERATURE_OPTIONS = [
+  { id: '', label: 'Any Temp', icon: '🌐' },
+  { id: 'Chilled Storage', label: 'Chilled (2–6°C)', icon: '❄️' },
+  { id: 'Ambient Storage', label: 'Ambient', icon: '☀️' },
+  { id: 'Frozen Storage', label: 'Frozen (-18°C)', icon: '🧊' },
+];
+
+const STORAGE_OPTIONS = [
+  { id: '', label: 'Any Purpose', icon: '🌐' },
+  { id: 'Temporary Storage', label: 'Temporary Storage', icon: '🔄' },
+  { id: 'Long-Term Storage', label: 'Long-Term Storage', icon: '⏳' },
+  { id: 'Transport', label: 'Transport / Transit', icon: '🚚' },
+  { id: 'Retail Display', label: 'Retail Display', icon: '🏪' },
+];
+
 export default function InputEngine() {
   const navigate = useNavigate();
-  const { form, ui, setResult, setLoading, setError, resetForm, toggleAdvancedMode } = useEngineStore();
+  const { form, setFormField, ui, setResult, setLoading, setError, resetForm, toggleAdvancedMode } = useEngineStore();
 
   const handleSelectProduct = (id) => {
     useEngineStore.setState((state) => ({
@@ -99,6 +114,8 @@ export default function InputEngine() {
     try {
       const result = await runRecommendation({
         product_id: form.product_id,
+        storage_type: form.storage_type || undefined,
+        temperature_condition: form.temperature_condition || undefined,
         max_moq: form.max_moq || undefined,
         max_cost: form.max_cost || undefined,
         recyclable_only: form.recyclable_only,
@@ -186,20 +203,138 @@ export default function InputEngine() {
               )}
             </div>
 
+            {/* ── Open Control 1: Temperature Condition ── */}
+            <div className="mb-5 pb-5 border-b border-gray-800/80 text-left">
+              <div className="flex justify-between items-center mb-2.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                  <span>🌡️</span> Temperature Regime
+                </label>
+                <span className="text-[11px] text-emerald-400 font-mono font-semibold">
+                  {TEMPERATURE_OPTIONS.find(t => t.id === form.temperature_condition)?.label || 'Any Temp'}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {TEMPERATURE_OPTIONS.map((opt) => {
+                  const isSelected = (form.temperature_condition || '') === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setFormField('temperature_condition', opt.id)}
+                      className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all border ${
+                        isSelected
+                          ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)] ring-1 ring-emerald-500/60'
+                          : 'bg-gray-950/60 border-gray-800 text-gray-400 hover:text-gray-200 hover:border-gray-700'
+                      }`}
+                    >
+                      <span className="text-sm shrink-0">{opt.icon}</span>
+                      <span className="truncate">{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Open Control 2: Storage Type ── */}
+            <div className="mb-5 pb-5 border-b border-gray-800/80 text-left">
+              <div className="flex justify-between items-center mb-2.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
+                  <span>📦</span> Storage Type & Purpose
+                </label>
+                <span className="text-[11px] text-emerald-400 font-mono font-semibold">
+                  {STORAGE_OPTIONS.find(s => s.id === form.storage_type)?.label || 'Any Purpose'}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {STORAGE_OPTIONS.map((opt) => {
+                  const isSelected = (form.storage_type || '') === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setFormField('storage_type', opt.id)}
+                      className={`flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg text-xs font-semibold transition-all border ${
+                        isSelected
+                          ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)] ring-1 ring-emerald-500/60'
+                          : 'bg-gray-950/60 border-gray-800 text-gray-400 hover:text-gray-200 hover:border-gray-700'
+                      }`}
+                    >
+                      <span className="text-sm shrink-0">{opt.icon}</span>
+                      <span className="truncate">{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Collapsible Secondary Constraints ── */}
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-400">Additional Constraints</span>
+              <span className="text-sm text-gray-400 flex items-center gap-2">
+                <span>Additional Constraints</span>
+                {activeFilters > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
+                    {activeFilters} active
+                  </span>
+                )}
+              </span>
               <button
                 type="button"
                 onClick={toggleAdvancedMode}
                 className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 font-medium bg-emerald-400/10 px-3 py-1.5 rounded-full"
               >
-                {ui.advancedMode ? '▲ Hide Filters' : '▼ Show Filters'}
+                {ui.advancedMode ? '▲ Hide Advanced' : '▼ Show Advanced'}
               </button>
             </div>
 
             {ui.advancedMode && (
-              <div className="mb-6 p-4 bg-gray-950 rounded-xl border border-gray-800 text-gray-400 text-sm italic text-center border-dashed">
-                Advanced forms (MOQ, max cost) will mount here...
+              <div className="mb-6 p-4 bg-gray-950 rounded-xl border border-gray-800 text-left space-y-4">
+                
+                {/* ── Numeric & Logic Constraints ── */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-400 mb-1">
+                      Max MOQ (Units)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 10000"
+                      value={form.max_moq || ''}
+                      onChange={(e) => setFormField('max_moq', e.target.value)}
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-400 mb-1">
+                      Max Cost / Unit ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.05"
+                      placeholder="e.g. 0.50"
+                      value={form.max_cost || ''}
+                      onChange={(e) => setFormField('max_cost', e.target.value)}
+                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* ── Recyclable Only Toggle ── */}
+                <div className="pt-2 flex items-center justify-between border-t border-gray-800/50">
+                  <span className="text-xs text-gray-300 flex items-center gap-1.5">
+                    <span>♻️</span> Recyclable / Compostable Only
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.recyclable_only}
+                      onChange={(e) => setFormField('recyclable_only', e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
               </div>
             )}
 

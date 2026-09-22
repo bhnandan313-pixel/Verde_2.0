@@ -53,6 +53,8 @@ export async function runRecommendation(params) {
   // Convert empty strings to undefined so Flask ignores them
   if (payload.max_moq === '' || payload.max_moq === null) delete payload.max_moq;
   if (payload.max_cost === '' || payload.max_cost === null) delete payload.max_cost;
+  if (payload.storage_type === '' || payload.storage_type === null) delete payload.storage_type;
+  if (payload.temperature_condition === '' || payload.temperature_condition === null) delete payload.temperature_condition;
   if (payload.max_moq !== undefined) payload.max_moq = Number(payload.max_moq);
   if (payload.max_cost !== undefined) payload.max_cost = Number(payload.max_cost);
 

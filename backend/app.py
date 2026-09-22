@@ -89,10 +89,14 @@ def run_recommendation():
         abort(400, description="'product_id' is required.")
 
     user_moq = body.get('max_moq')
+    storage_type = body.get('storage_type')
+    temperature_condition = body.get('temperature_condition')
 
     try:
         engine_result = recommend(
             product_id,
+            storage_type=storage_type,
+            temperature_condition=temperature_condition,
             max_moq=user_moq,
             max_cost=body.get('max_cost'),
             recyclable_only=bool(body.get('recyclable_only', False)),
@@ -104,12 +108,17 @@ def run_recommendation():
 
     if not matches:
         return jsonify({
-            'product':      engine_result['product'],
-            'best_pick':    None,
-            'budget_pick':  None,
-            'premium_pick': None,
-            'suppliers':    [],
-            'failure_matrix': engine_result.get('failures', []),
+            'product':                        engine_result['product'],
+            'best_pick':                      None,
+            'budget_pick':                    None,
+            'premium_pick':                   None,
+            'recommended_material':           None,
+            'selected_storage_type':          storage_type,
+            'selected_temperature_condition': temperature_condition,
+            'suppliers':                      [],
+            'failure_matrix':                 engine_result.get('failures', []),
+            'status':                         'researching_materials',
+            'message':                        'We are researching on more materials / The materials cannot be found',
         })
 
     # ── Derive the three picks ──────────────────────────────────────────────
@@ -145,13 +154,15 @@ def run_recommendation():
             'cost_per_kg':               mat.get('cost_per_unit', 0.50),
             'ph_range':                  mat.get('pH_range'),
             'compatible_phase_states':   mat.get('compatible_phase_states', []),
-            'shelf_life_extension_days': mat.get('shelf_life_extension_days'),
-            'compostability':            mat.get('compostability', ''),
-            'bio_source':                mat.get('bio_source', ''),
-            'image_url':                 mat.get('image_url'),
-            'score':                     mat.get('score'),
-            'badge':                     badge,
-            'failure_risks':             failure_risks,
+            'shelf_life_extension_days':       mat.get('shelf_life_extension_days'),
+            'supported_storage_types':         mat.get('supported_storage_types', []),
+            'supported_temperature_conditions': mat.get('supported_temperature_conditions', []),
+            'compostability':                  mat.get('compostability', ''),
+            'bio_source':                      mat.get('bio_source', ''),
+            'image_url':                       mat.get('image_url'),
+            'score':                           mat.get('score'),
+            'badge':                           badge,
+            'failure_risks':                   failure_risks,
         }
 
     product = engine_result['product']
@@ -189,13 +200,15 @@ def run_recommendation():
     ]
 
     return jsonify({
-        'product':              product,
-        'best_pick':            best_pick,
-        'budget_pick':          budget_pick,
-        'premium_pick':         premium_pick,
-        'recommended_material': recommended_material,   # backward-compat alias
-        'suppliers':            suppliers,
-        'failure_matrix':       engine_result.get('failures', []),
+        'product':                        product,
+        'best_pick':                      best_pick,
+        'budget_pick':                    budget_pick,
+        'premium_pick':                   premium_pick,
+        'recommended_material':           recommended_material,   # backward-compat alias
+        'selected_storage_type':          storage_type,
+        'selected_temperature_condition': temperature_condition,
+        'suppliers':                      suppliers,
+        'failure_matrix':                 engine_result.get('failures', []),
     })
 
 

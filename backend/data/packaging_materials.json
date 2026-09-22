@@ -17,12 +17,21 @@
     "compostability": "EN 13432 + home compostable",
     "is_bioplastic": false,
     "bio_source": "Kraft pulp with natural bio-wax barrier",
-    "compatible_phase_states": ["solid", "liquid"],
-    "dairy_applications": ["butter", "paneer", "khoa", "cheese", "liquid milk"],
+    "compatible_phase_states": ["solid"],
+    "dairy_applications": ["butter", "paneer", "khoa", "cheese"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Transport",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage",
+      "Ambient Storage"
+    ],
     "shelf_life_extension_days": 10,
     "max_moisture_exposure": 90,
     "pH_range": [4.0, 8.5],
-    "description": "Unbleached kraft paperboard coated with natural bio-wax barrier for butter, paneer, and gable-top dairy cartons.",
+    "description": "Unbleached kraft paperboard wrap and food boxes coated with natural bio-wax barrier for solid dairy like butter, paneer, and cheese.",
     "image_url": " https://custompackagessolution.com/wp-content/uploads/2024/06/kraft-paper-food-boxes.jpg",
     "failure_modes": {
       "temperature_abuse": "Bio-wax barrier can soften at elevated temperature and may transfer to the product surface.",
@@ -49,6 +58,14 @@
     "bio_source": "Sugarcane bagasse fibre",
     "compatible_phase_states": ["solid"],
     "dairy_applications": ["paneer tray", "cheese cube tray", "dairy sweet tray", "paneer", "cheddar cheese", "mozzarella cheese"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Ambient Storage",
+      "Chilled Storage"
+    ],
     "shelf_life_extension_days": 2,
     "max_moisture_exposure": 75,
     "pH_range": [4.5, 8.5],
@@ -79,6 +96,14 @@
     "bio_source": "Corn/sugarcane-derived polylactic acid",
     "compatible_phase_states": ["solid", "paste"],
     "dairy_applications": ["cheese", "paneer", "butter", "greek yogurt", "dahi", "cheddar cheese", "mozzarella cheese", "table butter"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage",
+      "Ambient Storage"
+    ],
     "shelf_life_extension_days": 7,
     "max_moisture_exposure": 85,
     "pH_range": [3.8, 8.5],
@@ -107,8 +132,19 @@
     "compostability": "Industrial compostable",
     "is_bioplastic": true,
     "bio_source": "PLA derived from renewable biomass with metallized barrier layer",
-    "compatible_phase_states": ["solid", "paste", "liquid"],
-    "dairy_applications": ["cheese pouch", "paneer pouch", "ghee sachet", "milk powder packaging", "liquid milk", "uht cream", "table butter", "greek yogurt", "dahi curd", "whole milk powder"],
+    "compatible_phase_states": ["solid", "paste"],
+    "dairy_applications": ["cheese pouch", "paneer pouch", "ghee sachet", "milk powder packaging", "table butter", "greek yogurt", "dahi curd", "whole milk powder"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Long-Term Storage",
+      "Transport",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage",
+      "Ambient Storage",
+      "Frozen Storage"
+    ],
     "shelf_life_extension_days": 30,
     "max_moisture_exposure": 95,
     "pH_range": [3.5, 8.5],
@@ -137,12 +173,22 @@
     "compostability": "Industrial compostable",
     "is_bioplastic": true,
     "bio_source": "PLA with PBAT compostable polymer blend",
-    "compatible_phase_states": ["solid", "liquid", "paste"],
-    "dairy_applications": ["cheese packaging", "paneer packaging", "curd packaging", "dairy product pouches", "liquid milk", "dahi curd", "greek yogurt", "uht cream"],
+    "compatible_phase_states": ["solid", "paste"],
+    "dairy_applications": ["cheese packaging", "paneer packaging", "curd packaging", "dahi curd", "greek yogurt"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Transport",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage",
+      "Ambient Storage",
+      "Frozen Storage"
+    ],
     "shelf_life_extension_days": 5,
     "max_moisture_exposure": 92,
     "pH_range": [3.8, 8.5],
-    "description": "Flexible high-elasticity copolymer blend designed for high-speed form-fill-seal pouches and fresh dairy packaging.",
+    "description": "Flexible high-elasticity copolymer blend designed for fresh cheese wraps and fermented curd pouches.",
     "image_url": " https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxN843tlVKmSk5W6j0vE5DcWGY-KKGurNxXmWec9UtGg4Pvwt3YHTUHR4&s=10",
     "failure_modes": {
       "temperature_abuse": "Excessive heat can soften the film and affect sealing performance.",
@@ -169,6 +215,15 @@
     "bio_source": "Cellulose from wood or other plant fibres",
     "compatible_phase_states": ["solid"],
     "dairy_applications": ["cheese wrap", "paneer wrap", "butter wrap", "cheddar cheese", "table butter", "mozzarella cheese"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Long-Term Storage",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage",
+      "Ambient Storage"
+    ],
     "shelf_life_extension_days": 15,
     "max_moisture_exposure": 80,
     "pH_range": [4.0, 8.0],
@@ -199,6 +254,13 @@
     "bio_source": "Dairy whey protein isolate",
     "compatible_phase_states": ["solid"],
     "dairy_applications": ["paneer", "cheese blocks", "cheese slices", "cheddar cheese", "mozzarella cheese"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage"
+    ],
     "shelf_life_extension_days": 6,
     "max_moisture_exposure": 70,
     "pH_range": [4.5, 7.5],
@@ -229,6 +291,13 @@
     "bio_source": "Chitin-derived chitosan",
     "compatible_phase_states": ["solid"],
     "dairy_applications": ["paneer", "cheese", "khoa", "cheddar cheese", "table butter"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage"
+    ],
     "shelf_life_extension_days": 10,
     "max_moisture_exposure": 70,
     "pH_range": [4.0, 7.5],
@@ -259,6 +328,14 @@
     "bio_source": "Rice starch and beeswax",
     "compatible_phase_states": ["solid"],
     "dairy_applications": ["paneer", "cheese wheels", "khoa", "table butter", "cheddar cheese"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage",
+      "Ambient Storage"
+    ],
     "shelf_life_extension_days": 8,
     "max_moisture_exposure": 65,
     "pH_range": [4.0, 7.5],
@@ -289,6 +366,15 @@
     "bio_source": "Corn gluten meal protein",
     "compatible_phase_states": ["solid"],
     "dairy_applications": ["hard cheese rind", "paneer", "cheddar cheese", "mozzarella cheese"],
+    "supported_storage_types": [
+      "Temporary Storage",
+      "Long-Term Storage",
+      "Retail Display"
+    ],
+    "supported_temperature_conditions": [
+      "Chilled Storage",
+      "Ambient Storage"
+    ],
     "shelf_life_extension_days": 9,
     "max_moisture_exposure": 65,
     "pH_range": [4.2, 7.5],
