@@ -84,9 +84,10 @@ def run_recommendation():
     """
     body = request.get_json(silent=True) or {}
 
-    product_id = body.get('product_id')
-    if not product_id:
-        abort(400, description="'product_id' is required.")
+    product_id = body.get('product_id') or 'custom'
+    product_name = body.get('product_name')
+    if not product_id and not product_name:
+        abort(400, description="'product_id' or 'product_name' is required.")
 
     user_moq = body.get('max_moq')
     storage_type = body.get('storage_type')
@@ -95,6 +96,14 @@ def run_recommendation():
     try:
         engine_result = recommend(
             product_id,
+            product_name=product_name,
+            moisture_content=body.get('moisture_content'),
+            fat_content=body.get('fat_content'),
+            ph_level=body.get('ph_level'),
+            desired_shelf_life=body.get('desired_shelf_life'),
+            relative_humidity=body.get('relative_humidity'),
+            respiration_rate=body.get('respiration_rate'),
+            transportation_conditions=body.get('transportation_conditions'),
             storage_type=storage_type,
             temperature_condition=temperature_condition,
             max_moq=user_moq,

@@ -50,13 +50,33 @@ export async function fetchMaterials() {
  */
 export async function runRecommendation(params) {
   const payload = { ...params };
-  // Convert empty strings to undefined so Flask ignores them
-  if (payload.max_moq === '' || payload.max_moq === null) delete payload.max_moq;
-  if (payload.max_cost === '' || payload.max_cost === null) delete payload.max_cost;
-  if (payload.storage_type === '' || payload.storage_type === null) delete payload.storage_type;
-  if (payload.temperature_condition === '' || payload.temperature_condition === null) delete payload.temperature_condition;
-  if (payload.max_moq !== undefined) payload.max_moq = Number(payload.max_moq);
-  if (payload.max_cost !== undefined) payload.max_cost = Number(payload.max_cost);
+  const stringFields = [
+    'product_name',
+    'storage_type',
+    'temperature_condition',
+    'respiration_rate',
+    'transportation_conditions'
+  ];
+  stringFields.forEach((field) => {
+    if (payload[field] === '' || payload[field] === null) delete payload[field];
+  });
+
+  const numericFields = [
+    'max_moq',
+    'max_cost',
+    'moisture_content',
+    'fat_content',
+    'ph_level',
+    'desired_shelf_life',
+    'relative_humidity'
+  ];
+  numericFields.forEach((field) => {
+    if (payload[field] === '' || payload[field] === null || payload[field] === undefined) {
+      delete payload[field];
+    } else {
+      payload[field] = Number(payload[field]);
+    }
+  });
 
   const { data } = await client.post('/recommend', payload);
   return data;

@@ -88,6 +88,14 @@ def _score(
 def recommend(
     product_id: str,
     *,
+    product_name: str | None = None,
+    moisture_content: float | None = None,
+    fat_content: float | None = None,
+    ph_level: float | None = None,
+    desired_shelf_life: int | None = None,
+    relative_humidity: float | None = None,
+    respiration_rate: str | None = None,
+    transportation_conditions: str | None = None,
     storage_type: str | None = None,
     temperature_condition: str | None = None,
     max_moq: int | None = None,
@@ -99,12 +107,20 @@ def recommend(
 
     Parameters
     ----------
-    product_id            : ID of the dairy product (must exist in dairy_products.json).
-    storage_type          : Optional storage purpose (e.g. 'Temporary Storage', 'Long-Term Storage', 'Transport', 'Retail Display').
-    temperature_condition : Optional thermal condition (e.g. 'Chilled Storage', 'Ambient Storage', 'Frozen Storage').
-    max_moq               : Optional upper bound on minimum order quantity.
-    max_cost              : Optional upper bound on cost per unit (USD).
-    recyclable_only       : If True, exclude non-recyclable materials.
+    product_id                : ID of the dairy product.
+    product_name              : Optional custom name override to show in output.
+    moisture_content          : Optional moisture % override.
+    fat_content               : Optional fat/oil % override.
+    ph_level                  : Optional pH level override.
+    desired_shelf_life        : Optional shelf life target in days.
+    relative_humidity         : Optional storage relative humidity %.
+    respiration_rate          : Optional product respiration rate.
+    transportation_conditions : Optional logistics mode ('standard', 'reefer', 'shock_absorbing').
+    storage_type              : Optional storage purpose ('Temporary Storage', 'Long-Term Storage', 'Transport', 'Retail Display').
+    temperature_condition     : Optional thermal condition ('Chilled Storage', 'Ambient Storage', 'Frozen Storage').
+    max_moq                   : Optional upper bound on minimum order quantity.
+    max_cost                  : Optional upper bound on cost per unit (USD).
+    recyclable_only           : If True, exclude non-recyclable materials.
 
     Returns
     -------
@@ -115,9 +131,60 @@ def recommend(
     }
     """
     db = JsonDB()
-    product = db.get_dairy_product_by_id(product_id)
-    if product is None:
-        raise ValueError(f"Unknown product id: '{product_id}'")
+    product_raw = db.get_dairy_product_by_id(product_id)
+    if product_raw is None:
+        # Fallback baseline custom dairy commodity
+        product = {
+            'id': product_id or 'custom',
+            'name': product_name or 'Custom Dairy Product',
+            'commodity_id': 'D_CUSTOM',
+            'phase_state': 'solid',
+            'fat_content_level': 'medium',
+            'barrier_class': 'high',
+            'moisture_content': 55.0,
+            'pH': 6.5,
+            'required_OTR': 25.0,
+            'required_WVTR': 10.0,
+            'temperature_sensitivity': 'medium',
+            'shelf_life_days': 30,
+        }
+    else:
+        product = dict(product_raw)
+
+    # Apply advanced chemistry and identification overrides
+    if product_name and str(product_name).strip():
+        product['name'] = str(product_name).strip()
+    if moisture_content is not None and str(moisture_content).strip() != '':
+        product['moisture_content'] = float(moisture_content)
+    if ph_level is not None and str(ph_level).strip() != '':
+        product['pH'] = float(ph_level)
+    if fat_content is not None and str(fat_content).strip() != '':
+        product['fat_content'] = float(fat_content)
+        val = float(fat_content)
+        if val >= 30:
+            product['fat_content_level'] = 'high'
+        elif val <= 5:
+            product['fat_content_level'] = 'low'
+        else:
+            product['fat_content_level'] = 'medium'
+    if desired_shelf_life is not None and str(desired_shelf_life).strip() != '':
+        product['shelf_life_days'] = int(desired_shelf_life)
+    if relative_humidity is not None and str(relative_humidity).strip() != '':
+        product['relative_humidity'] = float(relative_humidity)
+    if respiration_rate:
+        product['respiration_rate'] = str(respiration_rate)
+
+    # Route logistics mode into storage and temperature filters if appropriate
+    if transportation_conditions:
+        product['transportation_conditions'] = transportation_conditions
+        if transportation_conditions == 'reefer':
+            if not temperature_condition or temperature_condition in ('Other', 'Any', ''):
+                temperature_condition = 'Chilled Storage'
+            if not storage_type or storage_type in ('Other', 'Any', ''):
+                storage_type = 'Transport'
+        elif transportation_conditions in ('shock_absorbing', 'standard'):
+            if not storage_type or storage_type in ('Other', 'Any', ''):
+                storage_type = 'Transport'
 
     all_materials = db.get_all_packaging_materials()
 

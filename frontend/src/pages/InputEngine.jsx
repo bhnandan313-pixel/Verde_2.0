@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useEngineStore from '../store/useEngineStore';
 import { runRecommendation } from '../services/api';
 import { ExpandOnHover } from '../components/ui/ExpandOnHover';
+import { AdvancedForm } from './AdvancedPage';
 
 // High-quality Unsplash images matched to each of the 10 dairy commodities
 const PRODUCTS = [
@@ -105,20 +106,28 @@ export default function InputEngine() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.product_id) {
-      setError('Please select a dairy product from the gallery before running the engine.');
+    if (!form.product_id && !form.product_name) {
+      setError('Please select a dairy product from the gallery or enter a custom product name in Advanced Filters.');
       return;
     }
     setError(null);
     setLoading(true);
     try {
       const result = await runRecommendation({
-        product_id: form.product_id,
-        storage_type: form.storage_type || undefined,
-        temperature_condition: form.temperature_condition || undefined,
-        max_moq: form.max_moq || undefined,
-        max_cost: form.max_cost || undefined,
-        recyclable_only: form.recyclable_only,
+        product_id:                form.product_id || 'custom',
+        product_name:              form.product_name || undefined,
+        storage_type:              form.storage_type || undefined,
+        temperature_condition:     form.temperature_condition || undefined,
+        moisture_content:          form.moisture_content || undefined,
+        fat_content:               form.fat_content || undefined,
+        ph_level:                  form.ph_level || undefined,
+        desired_shelf_life:        form.desired_shelf_life || undefined,
+        relative_humidity:         form.relative_humidity || undefined,
+        respiration_rate:          form.respiration_rate || undefined,
+        transportation_conditions: form.transportation_conditions || undefined,
+        max_moq:                   form.max_moq || undefined,
+        max_cost:                  form.max_cost || undefined,
+        recyclable_only:           form.recyclable_only,
       });
       setResult(result);
       navigate('/results');
@@ -130,7 +139,19 @@ export default function InputEngine() {
     }
   }
 
-  const activeFilters = [form.max_moq, form.max_cost, form.recyclable_only].filter(Boolean).length;
+  const activeFilters = [
+    form.product_name,
+    form.moisture_content,
+    form.fat_content,
+    form.ph_level,
+    form.desired_shelf_life,
+    form.relative_humidity,
+    form.respiration_rate,
+    form.transportation_conditions,
+    form.max_moq,
+    form.max_cost,
+    form.recyclable_only
+  ].filter(Boolean).length;
 
   return (
     <main className="relative min-h-screen bg-gray-950 flex flex-col items-center font-sans overflow-x-hidden">
@@ -182,8 +203,7 @@ export default function InputEngine() {
           height="h-[400px] md:h-[500px]"
         />
       </section>
-
-      {/* ── Form Actions Container ── */}
+{/* ── Form Actions Container ── */}
       <div className="w-full max-w-lg px-4 pb-24 relative z-20 mt-4" id="engine-form">
         <div className="w-full bg-gray-900 rounded-xl shadow-2xl shadow-black/50 border border-gray-800 p-6">
           <form onSubmit={handleSubmit} noValidate>
@@ -197,7 +217,7 @@ export default function InputEngine() {
                 </p>
               </div>
               {form.product_id && (
-                <div className="h-10 w-10 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 text-xl">
+                <div className="h-10 w-10 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 text-xl shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                   {PRODUCTS.find(p => p.id === form.product_id)?.icon}
                 </div>
               )}
@@ -205,7 +225,7 @@ export default function InputEngine() {
 
             {/* ── Open Control 1: Temperature Condition ── */}
             <div className="mb-5 pb-5 border-b border-gray-800/80 text-left">
-              <div className="flex justify-between items-center mb-2.5">
+              <div className="flex justify-between items-center mb-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
                   <span>🌡️</span> Temperature Regime
                 </label>
@@ -236,10 +256,10 @@ export default function InputEngine() {
             </div>
 
             {/* ── Open Control 2: Storage Type ── */}
-            <div className="mb-5 pb-5 border-b border-gray-800/80 text-left">
-              <div className="flex justify-between items-center mb-2.5">
+            <div className="mb-6 pb-6 border-b border-gray-800/80 text-left">
+              <div className="flex justify-between items-center mb-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
-                  <span>📦</span> Storage Type & Purpose
+                  <span>📦</span> Storage Purpose
                 </label>
                 <span className="text-[11px] text-emerald-400 font-mono font-semibold">
                   {STORAGE_OPTIONS.find(s => s.id === form.storage_type)?.label || 'Any Purpose'}
@@ -269,8 +289,8 @@ export default function InputEngine() {
 
             {/* ── Collapsible Secondary Constraints ── */}
             <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-400 flex items-center gap-2">
-                <span>Additional Constraints</span>
+              <span className="text-sm text-gray-400 flex items-center gap-2 font-medium">
+                <span>Advanced Supply Filters</span>
                 {activeFilters > 0 && (
                   <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
                     {activeFilters} active
@@ -280,67 +300,17 @@ export default function InputEngine() {
               <button
                 type="button"
                 onClick={toggleAdvancedMode}
-                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 font-medium bg-emerald-400/10 px-3 py-1.5 rounded-full"
+                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 font-medium bg-emerald-400/10 px-3 py-1.5 rounded-full hover:bg-emerald-400/20"
               >
-                {ui.advancedMode ? '▲ Hide Advanced' : '▼ Show Advanced'}
+                {ui.advancedMode ? '▲ Hide' : '▼ Show'}
               </button>
             </div>
 
-            {ui.advancedMode && (
-              <div className="mb-6 p-4 bg-gray-950 rounded-xl border border-gray-800 text-left space-y-4">
-                
-                {/* ── Numeric & Logic Constraints ── */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-gray-400 mb-1">
-                      Max MOQ (Units)
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 10000"
-                      value={form.max_moq || ''}
-                      onChange={(e) => setFormField('max_moq', e.target.value)}
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-semibold text-gray-400 mb-1">
-                      Max Cost / Unit ($)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.05"
-                      placeholder="e.g. 0.50"
-                      value={form.max_cost || ''}
-                      onChange={(e) => setFormField('max_cost', e.target.value)}
-                      className="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                </div>
-
-                {/* ── Recyclable Only Toggle ── */}
-                <div className="pt-2 flex items-center justify-between border-t border-gray-800/50">
-                  <span className="text-xs text-gray-300 flex items-center gap-1.5">
-                    <span>♻️</span> Recyclable / Compostable Only
-                  </span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.recyclable_only}
-                      onChange={(e) => setFormField('recyclable_only', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-9 h-5 bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                  </label>
-                </div>
-
-              </div>
-            )}
+            {ui.advancedMode && <AdvancedForm />}
 
             {/* Error banner */}
             {ui.error && (
-              <p className="mb-6 text-sm text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg px-4 py-3">
+              <p className="mb-6 text-sm text-red-400 bg-red-950/40 border border-red-800/50 rounded-lg px-4 py-3 animate-in fade-in slide-in-from-top-2">
                 {ui.error}
               </p>
             )}
@@ -349,18 +319,18 @@ export default function InputEngine() {
             <div className="flex gap-3">
               <button
                 type="submit"
-                disabled={ui.loading || !form.product_id}
-                className={`flex-1 rounded-lg font-semibold text-sm flex items-center justify-center transition-colors border-none py-3 shadow-lg ${
-                  !form.product_id 
+                disabled={ui.loading || (!form.product_id && !form.product_name)}
+                className={`flex-1 rounded-xl font-bold text-sm flex items-center justify-center transition-all border-none py-3.5 shadow-lg ${
+                  (!form.product_id && !form.product_name)
                     ? 'bg-gray-800 text-gray-500 cursor-not-allowed shadow-none' 
-                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/40 hover:shadow-emerald-900/60 transform hover:-translate-y-0.5 cursor-pointer'
                 }`}
                 id="run-engine-btn"
               >
                 {ui.loading ? (
-                  <><span className="animate-spin mr-2">⟳</span>Running…</>
+                  <><span className="animate-spin mr-2 text-lg">⟳</span>Running Engine…</>
                 ) : (
-                  '▶ Run Engine'
+                  '▶ Run Match Engine'
                 )}
               </button>
 
@@ -368,7 +338,7 @@ export default function InputEngine() {
                 type="button"
                 onClick={resetForm}
                 disabled={ui.loading}
-                className="px-5 py-3 rounded-xl bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors border border-gray-700"
+                className="px-5 py-3 rounded-xl bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors border border-gray-700 font-bold"
                 title="Reset constraints"
               >
                 ↺

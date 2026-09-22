@@ -64,7 +64,7 @@ function ScoreBar({ score, barClass }) {
   return (
     <div className="mt-3 bg-gray-950/40 p-4 rounded-2xl border border-gray-800">
       <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
-        <span>AI Match Score</span>
+        <span>Best Score</span>
         <span className="font-mono text-white">{pct}%</span>
       </div>
       <div className="h-2 w-full rounded-full bg-gray-800 overflow-hidden">

@@ -17,8 +17,16 @@ const useEngineStore = create(
       // -------------------------------------------------------
       form: {
         product_id: '',
+        product_name: '',
         storage_type: '',
         temperature_condition: '',
+        moisture_content: '',
+        fat_content: '',
+        ph_level: '',
+        desired_shelf_life: '',
+        relative_humidity: '',
+        respiration_rate: '',
+        transportation_conditions: '',
         max_moq: '',
         max_cost: '',
         recyclable_only: false,
@@ -33,8 +41,16 @@ const useEngineStore = create(
         set({
           form: {
             product_id: '',
+            product_name: '',
             storage_type: '',
             temperature_condition: '',
+            moisture_content: '',
+            fat_content: '',
+            ph_level: '',
+            desired_shelf_life: '',
+            relative_humidity: '',
+            respiration_rate: '',
+            transportation_conditions: '',
             max_moq: '',
             max_cost: '',
             recyclable_only: false,
