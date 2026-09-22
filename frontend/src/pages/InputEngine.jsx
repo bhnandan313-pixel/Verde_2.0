@@ -11,70 +11,70 @@ const PRODUCTS = [
     title: 'Liquid Milk',
     icon: '🥛',
     description: 'Liquid, pH 6.7 · OTR ≤ 20 · WVTR ≤ 10 · High temp sensitivity · 14-day shelf life.',
-    image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://img.magnific.com/free-photo/fresh-milk-mug-jug-wooden-table_114579-18233.jpg?ga=GA1.1.1719514440.1780728336&semt=ais_hybrid&w=740&q=80'
   },
   {
     id: 'paneer',
     title: 'Paneer',
     icon: '🧊',
     description: 'Solid, pH 6.4 · 55% moisture · OTR ≤ 40 · WVTR ≤ 5 · High barrier class.',
-    image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://t4.ftcdn.net/jpg/06/32/64/95/360_F_632649552_4Gi6jOlnbDllG1qyjKo53lzdFDJNDfhq.jpg'
   },
   {
     id: 'ghee',
     title: 'Ghee',
     icon: '🫙',
     description: 'Liquid fat, pH 6.5 · Ultra-low moisture · OTR ≤ 10 · Very high barrier · 270-day life.',
-    image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://t3.ftcdn.net/jpg/08/36/29/96/360_F_836299683_A5daipMkHhg8Y7Botq85YVy5h9wLdeGj.jpg'
   },
   {
     id: 'cheddar_cheese',
     title: 'Cheddar Cheese',
     icon: '🧀',
     description: 'Solid, pH 5.2 · OTR ≤ 10 · WVTR ≤ 5 · Very high barrier · 180-day extended life.',
-    image: 'https://images.unsplash.com/photo-1618164435735-413d3b066c9a?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://static.vecteezy.com/system/resources/thumbnails/074/369/862/small/cheese-board-with-a-variety-of-cheeses-and-parsley-photo.jpg'
   },
   {
     id: 'greek_yogurt',
     title: 'Greek Yogurt',
     icon: '🥣',
     description: 'Paste, pH 4.0 · 80% moisture · OTR ≤ 20 · WVTR ≤ 5 · High barrier class.',
-    image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVwlY9W_Up6G3E-zq2ltAouidvEUV-uBBvyakDprUVMw&s'
   },
   {
     id: 'dahi_curd',
     title: 'Dahi / Curd',
     icon: '🥛',
     description: 'Paste, pH 4.2 · 85% moisture · OTR ≤ 20 · WVTR ≤ 5 · 10-day shelf life.',
-    image: 'https://images.unsplash.com/photo-1519996529931-28324d5a630e?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://t3.ftcdn.net/jpg/02/25/36/42/360_F_225364224_q8xAwAe1MAW4ftwo6oGcnV09pEz5O9t5.jpg'
   },
   {
     id: 'table_butter',
     title: 'Table Butter',
     icon: '🧈',
     description: 'Solid fat, pH 6.3 · 16% moisture · OTR ≤ 10 · WVTR ≤ 5 · 90-day chilled.',
-    image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://media.istockphoto.com/id/463055765/photo/butter.jpg?s=612x612&w=0&k=20&c=EoKa3KcOKS-ZhZd0I7c5sF1pjjhf4RJ959dR7BH7XeA='
   },
   {
     id: 'mozzarella_cheese',
     title: 'Mozzarella Cheese',
     icon: '🍕',
     description: 'Solid, pH 5.3 · 52% moisture · OTR ≤ 50 · Very low WVTR ≤ 3 · 30-day life.',
-    image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1200&auto=format&fit=crop'
+    image: ' https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQg46dfLSo2DFkZzC2RwiTOgX2VejHvrKXuNvSYSCmwvlwzXLSb0fE2-db&s=10'
   },
   {
     id: 'uht_cream',
     title: 'UHT Cream',
     icon: '🫗',
     description: 'Liquid, pH 6.6 · High fat · OTR ≤ 10 · WVTR ≤ 5 · 180-day ambient shelf life.',
-    image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://iorganicmilk.com/cdn/shop/articles/how-to-make-curd-or-dahi-at-home-thick-curd-recipe-iorganic-by-mak-biotek.jpg?v=1660135972'
   },
   {
     id: 'whole_milk_powder',
     title: 'Whole Milk Powder',
     icon: '🌾',
     description: 'Solid powder · Ultra-high barrier · OTR ≤ 1.0 · WVTR ≤ 0.5 · 365-day life.',
-    image: 'https://images.unsplash.com/photo-1612257416648-2d7e6bbb8c4d?q=80&w=1200&auto=format&fit=crop'
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlknCtq0v1Mq5cPYoa9JVqaughOpDgKPhMcFKtgiSB1AmHcn_Xjo5j3SAO&s=10'
   },
 ];
 
