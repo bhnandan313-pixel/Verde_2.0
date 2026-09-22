@@ -87,7 +87,7 @@ export default function InputEngine() {
       <header className="absolute top-0 left-0 w-full px-6 py-6 flex items-center justify-between z-50">
         <div className="flex items-center justify-center p-1.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg transition-transform hover:scale-105 duration-300 cursor-pointer">
           <img 
-            src="/ChatGPT Image Sep 20, 2026, 05_13_56 PM.png" 
+            src="/verde-logo.png" 
             alt="Verde Logo" 
             className="h-10 w-10 object-cover rounded-xl"
             onError={(e) => e.target.src = 'https://placehold.co/100x100/10b981/ffffff?text=V'}
