@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useMotionTemplate } from 'framer-motion';
 import useEngineStore from '../store/useEngineStore';
 import { Button } from '../components/ui/Button';
 
@@ -37,7 +37,7 @@ function SupplierMapCard({ supplier }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // A stylized dark-mode map placeholder
-  const mapImageUrl = "https://media.wired.com/photos/59269cd37034dc5f91bec0f1/master/pass/GoogleMapTA.jpg";
+  const mapImageUrl = "https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop&grayscale=true";
 
   return (
     <motion.div 
@@ -156,16 +156,26 @@ export default function SourcingDash() {
   const navigate = useNavigate();
   const { form, result, resetForm } = useEngineStore();
 
-  // Guard: must come from a completed recommendation with at least one pick
-  if (!result || (!result.best_pick && !result.recommended_material)) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // ✅ useMotionTemplate must be called at the top level, not inside JSX
+  const mouseGradient = useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(16, 185, 129, 0.12), transparent 80%)`;
+
+  function handleMouseMove({ currentTarget, clientX, clientY }) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  // Guard: must come from a completed recommendation
+  if (!result || !result.recommended_material) {
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-white gap-4 px-4">
-        <p className="text-5xl mb-2">🏭</p>
-        <h2 className="text-xl font-bold text-white">No Recommendation Yet</h2>
-        <p className="text-gray-400 text-sm text-center max-w-sm">Run the engine first to get packaging recommendations before sourcing suppliers.</p>
+      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-white">
+        <p className="mb-4 text-gray-400">No recommendation found. Please run the engine first.</p>
         <Button
           onClick={() => navigate('/')}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-md mt-2"
+          className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-md"
         >
           Go to Engine
         </Button>
@@ -173,7 +183,7 @@ export default function SourcingDash() {
     );
   }
 
-  const mat       = result.best_pick ?? result.recommended_material;
+  const mat       = result.recommended_material;
   const suppliers = result.suppliers || [];
   const userMoq   = Number(form.max_moq) || 0;
   const isStartup = userMoq > 0 && userMoq < 300;
@@ -184,8 +194,25 @@ export default function SourcingDash() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-950 px-4 py-12 font-sans text-gray-200 overflow-x-hidden">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <main 
+      className="relative min-h-screen bg-gray-950 px-4 py-12 font-sans text-gray-200 overflow-x-hidden group"
+      onMouseMove={handleMouseMove}
+    >
+      {/* ── Static Dot Pattern Background ── */}
+      <div
+        className="absolute inset-0 -z-20 h-full w-full"
+        style={{
+          backgroundSize: '24px 24px',
+          backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.06) 1px, transparent 1px)',
+        }}
+      />
+      {/* ── Mouse-follow Emerald Glow ── */}
+      <motion.div
+        className="pointer-events-none absolute -inset-px -z-10 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+        style={{ background: mouseGradient }}
+      />
+
+      <div className="max-w-5xl mx-auto space-y-8 relative z-10">
 
         {/* ── Header ── */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-gray-800 pb-6 gap-4">

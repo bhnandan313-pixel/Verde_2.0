@@ -4,43 +4,78 @@ import useEngineStore from '../store/useEngineStore';
 import { runRecommendation } from '../services/api';
 import { ExpandOnHover } from '../components/ui/ExpandOnHover';
 
-// We use high-quality Unsplash images for the backgrounds to make the gallery pop
+// High-quality Unsplash images matched to each of the 10 dairy commodities
 const PRODUCTS = [
-  { 
-    id: 'whole_milk', 
-    title: 'Whole Milk', 
-    icon: '🥛', 
-    description: 'Liquid, pH 6.7. Requires OTR ≤ 50 & high temp control for 14-day life.',
+  {
+    id: 'liquid_milk',
+    title: 'Liquid Milk',
+    icon: '🥛',
+    description: 'Liquid, pH 6.7 · OTR ≤ 20 · WVTR ≤ 10 · High temp sensitivity · 14-day shelf life.',
     image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=1200&auto=format&fit=crop'
   },
-  { 
-    id: 'cheddar_cheese', 
-    title: 'Cheddar Cheese', 
-    icon: '🧀', 
-    description: 'Solid phase. Strict OTR ≤ 5 needed for 180-day extended shelf life.',
-    image: 'https://www.tastingtable.com/img/gallery/the-small-difference-between-colby-cheese-and-cheddar-cheese/l-intro-1666287343.jpg'
+  {
+    id: 'paneer',
+    title: 'Paneer',
+    icon: '🧊',
+    description: 'Solid, pH 6.4 · 55% moisture · OTR ≤ 40 · WVTR ≤ 5 · High barrier class.',
+    image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?q=80&w=1200&auto=format&fit=crop'
   },
-  { 
-    id: 'butter', 
-    title: 'Butter', 
-    icon: '🧈', 
-    description: 'Semi-solid. Ultra-low WVTR (2.0) needed to prevent moisture loss and oxidation.',
-    image: 'https://www.shutterstock.com/image-photo/fresh-butter-slices-on-wooden-600nw-2568593227.jpg'
+  {
+    id: 'ghee',
+    title: 'Ghee',
+    icon: '🫙',
+    description: 'Liquid fat, pH 6.5 · Ultra-low moisture · OTR ≤ 10 · Very high barrier · 270-day life.',
+    image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?q=80&w=1200&auto=format&fit=crop'
   },
-  { 
-    id: 'yogurt', 
-    title: 'Yogurt', 
-    icon: '🥣', 
-    description: 'Fermented (pH 4.2). Moderate barrier (OTR 30) for 21-day life.',
-    image: 'https://www.littlehomeinthemaking.com/wp-content/uploads/2023/01/strainingwheySCALED-8-of-9.jpg'
+  {
+    id: 'cheddar_cheese',
+    title: 'Cheddar Cheese',
+    icon: '🧀',
+    description: 'Solid, pH 5.2 · OTR ≤ 10 · WVTR ≤ 5 · Very high barrier · 180-day extended life.',
+    image: 'https://images.unsplash.com/photo-1618164435735-413d3b066c9a?q=80&w=1200&auto=format&fit=crop'
   },
-  { 
-    id: 'cream_cheese', 
-    title: 'Cream Cheese', 
-    icon: '🥯', 
-    description: '54% moisture. Requires strict WVTR (6.0) for 30-day chilled preservation.',
-    image: 'https://images.unsplash.com/photo-1634487359989-3e90c9432133?q=80&w=1200&auto=format&fit=crop'
-  }
+  {
+    id: 'greek_yogurt',
+    title: 'Greek Yogurt',
+    icon: '🥣',
+    description: 'Paste, pH 4.0 · 80% moisture · OTR ≤ 20 · WVTR ≤ 5 · High barrier class.',
+    image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=1200&auto=format&fit=crop'
+  },
+  {
+    id: 'dahi_curd',
+    title: 'Dahi / Curd',
+    icon: '🥛',
+    description: 'Paste, pH 4.2 · 85% moisture · OTR ≤ 20 · WVTR ≤ 5 · 10-day shelf life.',
+    image: 'https://images.unsplash.com/photo-1519996529931-28324d5a630e?q=80&w=1200&auto=format&fit=crop'
+  },
+  {
+    id: 'table_butter',
+    title: 'Table Butter',
+    icon: '🧈',
+    description: 'Solid fat, pH 6.3 · 16% moisture · OTR ≤ 10 · WVTR ≤ 5 · 90-day chilled.',
+    image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?q=80&w=1200&auto=format&fit=crop'
+  },
+  {
+    id: 'mozzarella_cheese',
+    title: 'Mozzarella Cheese',
+    icon: '🍕',
+    description: 'Solid, pH 5.3 · 52% moisture · OTR ≤ 50 · Very low WVTR ≤ 3 · 30-day life.',
+    image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1200&auto=format&fit=crop'
+  },
+  {
+    id: 'uht_cream',
+    title: 'UHT Cream',
+    icon: '🫗',
+    description: 'Liquid, pH 6.6 · High fat · OTR ≤ 10 · WVTR ≤ 5 · 180-day ambient shelf life.',
+    image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=1200&auto=format&fit=crop'
+  },
+  {
+    id: 'whole_milk_powder',
+    title: 'Whole Milk Powder',
+    icon: '🌾',
+    description: 'Solid powder · Ultra-high barrier · OTR ≤ 1.0 · WVTR ≤ 0.5 · 365-day life.',
+    image: 'https://images.unsplash.com/photo-1612257416648-2d7e6bbb8c4d?q=80&w=1200&auto=format&fit=crop'
+  },
 ];
 
 export default function InputEngine() {
