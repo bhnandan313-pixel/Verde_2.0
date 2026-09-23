@@ -195,20 +195,20 @@ export default function SourcingDash() {
 
   return (
     <main 
-      className="relative min-h-screen bg-gray-950 px-4 py-12 font-sans text-gray-200 overflow-x-hidden group"
+      className="relative min-h-screen bg-gray-950 px-4 py-12 font-sans text-gray-200 overflow-x-hidden group isolate"
       onMouseMove={handleMouseMove}
     >
       {/* ── Static Dot Pattern Background ── */}
       <div
-        className="absolute inset-0 -z-20 h-full w-full"
+        className="pointer-events-none absolute inset-0 z-0 h-full w-full"
         style={{
           backgroundSize: '24px 24px',
-          backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.06) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
         }}
       />
       {/* ── Mouse-follow Emerald Glow ── */}
       <motion.div
-        className="pointer-events-none absolute -inset-px -z-10 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+        className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
         style={{ background: mouseGradient }}
       />
 
