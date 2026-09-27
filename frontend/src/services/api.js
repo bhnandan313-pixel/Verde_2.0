@@ -1,7 +1,12 @@
 import axios from 'axios';
 
 const PROD_DEFAULT_BACKEND = 'https://verde20-production.up.railway.app';
-const rawEnvUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+let rawEnvUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+
+// If VITE_API_URL was configured without protocol (e.g. 'verde20-production.up.railway.app'), prepend https://
+if (rawEnvUrl && !/^https?:\/\//i.test(rawEnvUrl) && !rawEnvUrl.startsWith('/')) {
+  rawEnvUrl = `https://${rawEnvUrl}`;
+}
 
 // In local dev, default to '/api' so Vite's proxy forwards requests to localhost:5000.
 // In production, fallback to the deployed Railway backend if VITE_API_URL is unset.
