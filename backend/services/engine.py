@@ -22,7 +22,7 @@ Matching algorithm:
 from __future__ import annotations
 
 import math
-from repository.json_db import JsonDB
+from repository.supabase_db import SupabaseDB
 
 
 def _score(
@@ -130,7 +130,7 @@ def recommend(
         "failures":  [<rejected material dicts with 'failure_reasons' list>],
     }
     """
-    db = JsonDB()
+    db = SupabaseDB()
     product_raw = db.get_dairy_product_by_id(product_id)
     if product_raw is None:
         # Fallback baseline custom dairy commodity
@@ -266,4 +266,4 @@ def recommend(
 
 def get_all_products() -> list[dict]:
     """Convenience wrapper — returns all dairy products for dropdown population."""
-    return JsonDB().get_all_dairy_products()
+    return SupabaseDB().get_all_dairy_products()

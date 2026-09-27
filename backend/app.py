@@ -12,15 +12,22 @@ Exposes:
 
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
 
 from services.engine import recommend, get_all_products
 from services.sourcing import find_suppliers
-from repository.json_db import JsonDB
+from repository.supabase_db import SupabaseDB
+
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-_db = JsonDB()
+_db = SupabaseDB()
 
 # ---------------------------------------------------------------------------
 # Health

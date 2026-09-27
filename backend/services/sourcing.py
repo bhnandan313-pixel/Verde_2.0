@@ -13,9 +13,9 @@ Given a packaging material ID and an optional user MOQ, this module:
 """
 
 from __future__ import annotations
-from repository.json_db import JsonDB
+from repository.supabase_db import SupabaseDB
 
-_db = JsonDB()
+_db = SupabaseDB()
 
 # Scoring weights (must sum to 1.0)
 WEIGHTS = {
