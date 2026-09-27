@@ -1,22 +1,18 @@
 import axios from 'axios';
 
+const PROD_DEFAULT_BACKEND = 'https://verde20-production.up.railway.app';
 const rawEnvUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
-const BASE_URL = rawEnvUrl
-  ? (rawEnvUrl.endsWith('/api') ? rawEnvUrl : `${rawEnvUrl}/api`)
-  : '/api';
 
-if (import.meta.env.DEV) {
-  console.log('[Verde API] Development mode: baseURL is', BASE_URL);
-} else {
-  console.log('[Verde API] Production mode: baseURL is', BASE_URL);
-  if (!rawEnvUrl) {
-    console.warn('[Verde API WARNING] VITE_API_URL environment variable is missing on Vercel! Requests to /api will fail with 405.');
-  }
-}
+// In local dev, default to '/api' so Vite's proxy forwards requests to localhost:5000.
+// In production, fallback to the deployed Railway backend if VITE_API_URL is unset.
+const targetUrl = rawEnvUrl || (import.meta.env.DEV ? '/api' : PROD_DEFAULT_BACKEND);
+const BASE_URL = targetUrl.endsWith('/api') ? targetUrl : `${targetUrl}/api`;
+
+console.log(`[Verde API] Initialized baseURL: ${BASE_URL} (mode: ${import.meta.env.MODE})`);
 
 const client = axios.create({
   baseURL: BASE_URL,
-  timeout: 15_000,
+  timeout: 25_000,
   headers: { 'Content-Type': 'application/json' },
 });
 
