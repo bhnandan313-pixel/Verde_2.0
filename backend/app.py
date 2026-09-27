@@ -25,6 +25,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 _db = SupabaseDB()
