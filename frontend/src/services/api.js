@@ -1,10 +1,14 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5000/api';
+// In production (Vercel), VITE_API_URL is set to the Railway backend URL.
+// In local dev, it falls back to localhost via the Vite proxy.
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 const client = axios.create({
   baseURL: BASE_URL,
-  timeout: 10_000,
+  timeout: 15_000,
   headers: { 'Content-Type': 'application/json' },
 });
 
